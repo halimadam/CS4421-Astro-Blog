@@ -8,7 +8,11 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+type Author = CollectionEntry<'authors'>['data'];
+
+type BlogPostProps = Omit<Props, 'author'> & { author: Author };
+
+const { title, description, pubDate, updatedDate, heroImage, author } = Astro.props as BlogPostProps;
 ---
 
 <html lang="en">
@@ -35,6 +39,45 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				margin: auto;
 				padding: 1em;
 				color: rgb(var(--gray-dark));
+			}
+			.author-profile {
+				display: grid;
+				grid-template-columns: 96px 1fr;
+				gap: 1.25em;
+				align-items: start;
+				margin-top: 3em;
+				padding-top: 2em;
+				border-top: 1px solid rgb(var(--gray-light));
+			}
+			.author-avatar {
+				width: 96px;
+				height: 96px;
+				object-fit: cover;
+				border-radius: 50%;
+			}
+			.author-profile h2 {
+				margin-bottom: 0.25em;
+				font-size: 1.5em;
+			}
+			.author-bio {
+				margin: 0 0 0.75em;
+			}
+			.author-links {
+				display: flex;
+				gap: 1em;
+				flex-wrap: wrap;
+				margin: 0;
+				font-size: 0.9em;
+			}
+			@media (max-width: 520px) {
+				.author-profile {
+					grid-template-columns: 72px 1fr;
+					gap: 1em;
+				}
+				.author-avatar {
+					width: 72px;
+					height: 72px;
+				}
 			}
 			.title {
 				margin-bottom: 1em;
@@ -78,6 +121,16 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<hr />
 					</div>
 					<slot />
+					<section class="author-profile" aria-labelledby="author-heading">
+						<Image class="author-avatar" src={author.avatar} alt={author.avatarAlt} width={96} height={96} />
+						<div>
+							<h2 id="author-heading">About {author.name}</h2>
+							<p class="author-bio">{author.bio}</p>
+							<nav class="author-links" aria-label={`${author.name}'s social links`}>
+								{author.socialLinks.map((link) => <a href={link.url} rel="me">{link.label}</a>)}
+							</nav>
+						</div>
+					</section>
 				</div>
 			</article>
 		</main>

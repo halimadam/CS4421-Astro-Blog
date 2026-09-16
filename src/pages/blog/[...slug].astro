@@ -4,17 +4,29 @@ import BlogPost from '../../layouts/BlogPost.astro';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
+	const authors = await getCollection('authors');
+
 	return posts.map((post) => ({
 		params: { slug: post.id },
-		props: post,
+		props: {
+			post,
+			author: authors.find((author) => author.id === post.data.author),
+		},
 	}));
 }
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
+type Props = {
+	post: CollectionEntry<'blog'>;
+	author: CollectionEntry<'authors'> | undefined;
+};
+
+const { post, author } = Astro.props;
+if (!author) {
+	throw new Error(`Author not found for blog post: ${post.id}`);
+}
 const { Content } = await render(post);
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} author={author.data}>
 	<Content />
 </BlogPost>
