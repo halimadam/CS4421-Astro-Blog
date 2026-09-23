@@ -6,13 +6,11 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
-
 type Author = CollectionEntry<'authors'>['data'];
 
-type BlogPostProps = Omit<Props, 'author'> & { author: Author };
+type Props = Omit<CollectionEntry<'blog'>['data'], 'author'> & { author?: Author };
 
-const { title, description, pubDate, updatedDate, heroImage, author } = Astro.props as BlogPostProps;
+const { title, description, pubDate, updatedDate, heroImage, author } = Astro.props;
 ---
 
 <html lang="en">
@@ -121,16 +119,18 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 						<hr />
 					</div>
 					<slot />
-					<section class="author-profile" aria-labelledby="author-heading">
-						<Image class="author-avatar" src={author.avatar} alt={author.avatarAlt} width={96} height={96} />
-						<div>
-							<h2 id="author-heading">About {author.name}</h2>
-							<p class="author-bio">{author.bio}</p>
-							<nav class="author-links" aria-label={`${author.name}'s social links`}>
-								{author.socialLinks.map((link) => <a href={link.url} rel="me">{link.label}</a>)}
-							</nav>
-						</div>
-					</section>
+					{author && (
+						<section class="author-profile" aria-labelledby="author-heading">
+							<Image class="author-avatar" src={author.avatar} alt={author.avatarAlt} width={96} height={96} />
+							<div>
+								<h2 id="author-heading">About {author.name}</h2>
+								<p class="author-bio">{author.bio}</p>
+								<nav class="author-links" aria-label={`${author.name}'s social links`}>
+									{author.socialLinks.map((link) => <a href={link.url} rel="me">{link.label}</a>)}
+								</nav>
+							</div>
+						</section>
+					)}
 				</div>
 			</article>
 		</main>
