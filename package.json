@@ -11,7 +11,7 @@
     "check": "astro check",
     "lint": "eslint .",
     "preview": "astro preview",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --exclude cdk/**",
     "astro": "astro"
   },
   "dependencies": {
