@@ -1,29 +1,23 @@
-# Stage 1: Build the application
-FROM node:24-alpine AS base
+# STAGE 1: Build & Compile
+FROM node:24-alpine AS builder
 WORKDIR /app
-
-# Install dependencies
 COPY package*.json ./
 RUN npm ci
-
-# Copy source code and build
 COPY . .
 RUN npm run build
 
-# Stage 2: Run the production server
-FROM node:24-alpine AS runtime
+# STAGE 2: Lean Production Runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
 
-# Grab the built compiled output from Stage 1
-COPY --from=base /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 
-# Set environment variables for the standalone server
-ENV HOST=0.0.0.0
-ENV PORT=4321
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4321/api/health || exit 1
+
 EXPOSE 4321
-
-# Start the Node server
 CMD ["node", "./dist/server/entry.mjs"]
