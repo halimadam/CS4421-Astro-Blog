@@ -1,4 +1,4 @@
-name: Deploy Static Site via AWS CDC
+name: Deploy Static Site via AWS CDK
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.22.3
+          node-version: 24
 
       - name: Install root dependencies & build Astro site
         run: |

@@ -15,14 +15,31 @@ jobs:
       - name: Setup Node.js Runtime
         uses: actions/setup-node@v4
         with:
-          node-version: 22.22.3
+          node-version: 24
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            cdk/package-lock.json
 
       - name: Install Project Dependencies
         run: npm ci
 
-      - name: Run Static Analysis & Tests
+      - name: Lint, Type Check & Unit Tests
         run: |
           npm run lint
           npm run check
           npm run test:unit
+
+      - name: Build Astro
+        run: npm run build
+
+      - name: Install CDK Dependencies
+        working-directory: cdk
+        run: npm ci
+
+      - name: Run CDK Tests
+        working-directory: cdk
+        run: npm test
+
+      - name: Build Docker Image
+        run: docker build -t astro-blog:ci .
