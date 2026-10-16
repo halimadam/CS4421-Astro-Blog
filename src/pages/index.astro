@@ -10,40 +10,250 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
-	<body>
+	<body class="home-page">
 		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+		<main class="home-main">
+			<section class="pool-hero" aria-labelledby="hero-title">
+				<div class="hero-copy">
+					<p class="eyebrow">PERSONAL NOTES / OPEN TABLE</p>
+					<h1 id="hero-title">A little life between the shots.</h1>
+					<p class="hero-description">
+						Stories, ideas, and small observations from around the table.
+					</p>
+					<div class="hero-links">
+						<a class="primary-link" href="/blog">Explore the blog</a>
+						<a class="secondary-link" href="/about">About the author</a>
+					</div>
+				</div>
+				<a
+					class="photo-credit"
+					href="https://commons.wikimedia.org/wiki/File:Billiards_table_2.JPG"
+					target="_blank"
+					rel="noreferrer"
+				>
+					Photo: Mark Buckawicki / Wikimedia Commons (CC0)
+				</a>
+			</section>
+			<section class="home-after" aria-labelledby="after-title">
+				<div>
+					<p class="eyebrow">01 / THE BLOG</p>
+					<h2 id="after-title">Take a seat.</h2>
+				</div>
+				<div class="after-copy">
+					<p>
+						A growing collection of stories and thoughts. Find a comfortable corner and see what’s on the table.
+					</p>
+					<a href="/blog">Browse all posts <span aria-hidden="true">&rarr;</span></a>
+				</div>
+			</section>
 		</main>
 		<Footer />
 	</body>
+
+<style is:global>
+	body.home-page {
+		--home-cream: #f5f0e2;
+		--home-lime: #d5ed79;
+		background: linear-gradient(120deg, #123e31 0%, #195247 48%, #4b3158 100%);
+		color: var(--home-cream);
+	}
+
+	body.home-page header {
+		position: absolute;
+		z-index: 2;
+		top: 0;
+		left: 0;
+		box-sizing: border-box;
+		width: 100%;
+		background: linear-gradient(180deg, rgba(9, 24, 23, 0.78), transparent);
+		box-shadow: none;
+	}
+
+	body.home-page header h2 a,
+	body.home-page header nav a {
+		color: var(--home-cream);
+	}
+
+	body.home-page header nav a.active {
+		border-bottom-color: var(--home-lime);
+	}
+
+	.home-main {
+		width: 100%;
+		max-width: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.pool-hero {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: max(610px, min(82svh, 820px));
+		padding: 120px clamp(28px, 8vw, 128px) 88px;
+		background-image:
+			linear-gradient(108deg, rgba(7, 39, 31, 0.86) 0%, rgba(11, 57, 47, 0.62) 48%, rgba(64, 29, 77, 0.72) 100%),
+			url('/pool-table-cue.jpg');
+		background-position: center, center 56%;
+		background-size: cover;
+		color: var(--home-cream);
+	}
+
+	.hero-copy {
+		max-width: 760px;
+	}
+
+	.eyebrow {
+		margin: 0 0 1.2rem;
+		color: var(--home-lime);
+		font-size: 0.78rem;
+		font-weight: 700;
+	}
+
+	.pool-hero h1 {
+		max-width: 720px;
+		margin: 0;
+		color: var(--home-cream);
+		font-family: Georgia, 'Times New Roman', serif;
+		font-size: 5rem;
+		font-weight: 400;
+		line-height: 1.02;
+	}
+
+	.hero-description {
+		max-width: 540px;
+		margin: 1.5rem 0 0;
+		color: rgba(245, 240, 226, 0.9);
+		font-size: 1.15rem;
+	}
+
+	.hero-links {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		margin-top: 2rem;
+	}
+
+	.hero-links a,
+	.after-copy a {
+		font-size: 1rem;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.primary-link {
+		padding: 0.75rem 1.1rem;
+		border-radius: 3px;
+		background: var(--home-lime);
+		color: #173c2e;
+	}
+
+	.primary-link:hover {
+		background: #e4f5a5;
+		color: #173c2e;
+	}
+
+	.secondary-link {
+		color: var(--home-cream);
+		text-decoration: underline !important;
+		text-decoration-color: rgba(245, 240, 226, 0.55) !important;
+		text-underline-offset: 5px;
+	}
+
+	.secondary-link:hover {
+		color: var(--home-lime);
+	}
+
+	.photo-credit {
+		position: absolute;
+		right: 24px;
+		bottom: 18px;
+		max-width: calc(100% - 48px);
+		color: rgba(245, 240, 226, 0.82);
+		font-size: 0.72rem;
+		line-height: 1.4;
+		text-align: right;
+		text-decoration-color: rgba(245, 240, 226, 0.45);
+		text-underline-offset: 2px;
+	}
+
+	.home-after {
+		display: grid;
+		grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+		align-items: end;
+		gap: 2rem;
+		max-width: 1040px;
+		margin: 0 auto;
+		padding: 48px 32px 60px;
+		color: var(--home-cream);
+	}
+
+	.home-after .eyebrow {
+		margin-bottom: 0.7rem;
+	}
+
+	.home-after h2 {
+		margin: 0;
+		color: var(--home-cream);
+		font-family: Georgia, 'Times New Roman', serif;
+		font-size: 2.7rem;
+		font-weight: 400;
+	}
+
+	.after-copy p {
+		max-width: 570px;
+		margin: 0 0 0.7rem;
+		color: rgba(245, 240, 226, 0.84);
+	}
+
+	.after-copy a {
+		color: var(--home-lime);
+	}
+
+	.after-copy a:hover {
+		color: #e4f5a5;
+	}
+
+	body.home-page footer {
+		background: rgba(7, 25, 23, 0.2);
+		color: rgba(245, 240, 226, 0.75);
+	}
+
+	body.home-page footer .social-links a {
+		color: rgba(245, 240, 226, 0.8);
+	}
+
+	body.home-page footer .social-links a:hover {
+		color: var(--home-lime);
+	}
+
+	@media (max-width: 720px) {
+		.pool-hero {
+			height: max(610px, min(78svh, 760px));
+			padding: 116px 24px 88px;
+			background-position: center, 62% center;
+		}
+
+		.pool-hero h1 {
+			font-size: 3.25rem;
+		}
+
+		.hero-description {
+			font-size: 1.05rem;
+		}
+
+		.home-after {
+			grid-template-columns: 1fr;
+			gap: 0.8rem;
+			padding: 36px 24px 44px;
+		}
+
+		.home-after h2 {
+			font-size: 2.35rem;
+		}
+	}
+</style>
 </html>
