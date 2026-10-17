@@ -1,5 +1,6 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import BlogListing from '../components/BlogListing.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
@@ -7,254 +8,344 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="home-page">
-		<Header />
-		<main class="home-main">
-			<section class="pool-hero" aria-labelledby="hero-title">
-				<div class="hero-copy">
-					<p class="eyebrow">PERSONAL NOTES / TIPS AND TRICKS</p>
-					<h1 id="hero-title">A little life between the shots.</h1>
-					<p class="hero-description">
-						Stories, ideas, and small observations from around the table.
-					</p>
-					<div class="hero-links">
-						<a class="primary-link" href="/blog">Explore the blog</a>
-						<a class="secondary-link" href="/about">About the author</a>
-					</div>
-				</div>
-				<a
-					class="photo-credit"
-					href="/futuristic_neon_pool_table_hero.jpg"
-					target="_blank"
-					rel="noreferrer"
-				>
-					Photo: Futuristic neon pool table hero
-				</a>
-			</section>
-			<section class="home-after" aria-labelledby="after-title">
-				<div>
-					<p class="eyebrow">01 / THE BLOG</p>
-					<h2 id="after-title">Take a seat.</h2>
-				</div>
-				<div class="after-copy">
-					<p>
-						A growing collection of stories and thoughts. Find a comfortable corner and see what’s on the table.
-					</p>
-					<a href="/blog">Browse all posts <span aria-hidden="true">&rarr;</span></a>
-				</div>
-			</section>
-		</main>
-		<Footer />
-	</body>
+    <head>
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    </head>
+    <body class="home-page">
+        <Header />
+        <main class="home-main">
+            <section class="pool-hero" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <p class="eyebrow">PERSONAL NOTES / TIPS AND TRICKS</p>
+                    <h1 id="hero-title">A little life between the shots.</h1>
+                    <p class="hero-description">
+                        Stories, ideas, and small observations from around the table.
+                    </p>
+                    <div class="hero-links">
+                        <a class="primary-link" href="/blog">Explore the blog</a>
+                        <a class="secondary-link" href="/about">About the author</a>
+                    </div>
+                </div>
+                <a
+                    class="photo-credit"
+                    href="/futuristic_neon_pool_table_hero.jpg"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    Photo: Futuristic neon pool table hero
+                </a>
+            </section>
+            <div class="home-transition">
+                <section class="home-after" aria-labelledby="after-title">
+                    <div class="header-main-title">
+                        <p class="eyebrow">01 / THE BLOG</p>
+                        <h2 id="after-title">Take a seat.</h2>
+                    </div>
+                    <div class="after-copy">
+                        <p>
+                            A growing collection of stories and thoughts. Find a comfortable corner and see what’s on the table.
+                        </p>
+                        <a href="/blog">Browse all posts <span aria-hidden="true">&rarr;</span></a>
+                    </div>
+                </section>
+                <div class="home-posts">
+                    <BlogListing animated excludeIds={['markdown-style-guide']} />
+                </div>
+            </div>
+        </main>
+        <Footer />
+
+        <script>
+            // Shrinks the sticky header once scrolling starts past the hero
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    const header = document.querySelector('.home-after');
+                    if (header) {
+                        header.classList.toggle('is-scrolled', !entry.isIntersecting);
+                    }
+                },
+                { threshold: [1] }
+            );
+
+            const sentinel = document.querySelector('.pool-hero');
+            if (sentinel) observer.observe(sentinel);
+        </script>
+    </body>
 
 <style is:global>
-	body.home-page {
-		--home-cream: #f5f0e2;
-		--home-lime: #d5ed79;
-		background: linear-gradient(120deg, #123e31 0%, #195247 48%, #4b3158 100%);
-		color: var(--home-cream);
-	}
+    body.home-page {
+        --home-cream: #f5f0e2;
+        --home-lime: #d5ed79;
+        --home-gradient: linear-gradient(120deg, #120b22 0%, #1f0c2d 48%, #421045 100%);
+        background: var(--home-gradient);
+        color: var(--home-cream);
+    }
 
-	body.home-page header {
-		position: absolute;
-		z-index: 2;
-		top: 0;
-		left: 0;
-		box-sizing: border-box;
-		width: 100%;
-		background: linear-gradient(180deg, rgba(9, 24, 23, 0.78), transparent);
-		box-shadow: none;
-	}
+    body.home-page header {
+        position: absolute;
+        z-index: 20;
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+        width: 100%;
+        background: linear-gradient(180deg, rgba(11, 6, 20, 0.78), transparent);
+        box-shadow: none;
+    }
 
-	body.home-page header h2 a,
-	body.home-page header nav a {
-		color: var(--home-cream);
-	}
+    body.home-page header h2 a,
+    body.home-page header nav a {
+        color: var(--home-cream);
+    }
 
-	body.home-page header nav a.active {
-		border-bottom-color: var(--home-lime);
-	}
+    body.home-page header nav a.active {
+        border-bottom-color: var(--home-lime);
+    }
 
-	.home-main {
-		width: 100%;
-		max-width: none;
-		margin: 0;
-		padding: 0;
-	}
+    .home-main {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
 
-	.pool-hero {
-		position: relative;
-		isolation: isolate;
-		display: flex;
-		align-items: center;
-		box-sizing: border-box;
-		height: max(610px, min(82svh, 820px));
-		padding: 120px clamp(28px, 8vw, 128px) 88px;
-		background-color: #090611;
-		background-image:
-			linear-gradient(105deg, rgba(11, 6, 20, 0.78) 0%, rgba(24, 9, 34, 0.64) 40%, rgba(66, 11, 59, 0.7) 100%),
-			url('/futuristic_neon_pool_table_hero.jpg');
-		background-position: center, 50% 50%;
-		background-size: cover;
-		color: var(--home-cream);
-	}
+    .pool-hero {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        height: max(610px, min(82svh, 820px));
+        padding: 120px clamp(28px, 8vw, 128px) 88px;
+        background-color: #090611;
+        background-image:
+            linear-gradient(105deg, rgba(11, 6, 20, 0.85) 0%, rgba(24, 9, 34, 0.75) 40%, rgba(66, 11, 59, 0.8) 100%),
+            url('/futuristic_neon_pool_table_hero.jpg');
+        background-position: center, 50% 50%;
+        background-size: cover;
+        color: var(--home-cream);
+    }
 
-	.hero-copy {
-		max-width: 760px;
-	}
+    .hero-copy {
+        max-width: 760px;
+    }
 
-	.eyebrow {
-		margin: 0 0 1.2rem;
-		color: var(--home-lime);
-		font-size: 0.78rem;
-		font-weight: 700;
-	}
+    .eyebrow {
+        margin: 0 0 1.2rem;
+        color: var(--home-lime);
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
 
-	.pool-hero h1 {
-		max-width: 720px;
-		margin: 0;
-		color: var(--home-cream);
-		font-family: Georgia, 'Times New Roman', serif;
-		font-size: 5rem;
-		font-weight: 400;
-		line-height: 1.02;
-	}
+    .pool-hero h1 {
+        max-width: 720px;
+        margin: 0;
+        color: var(--home-cream);
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 5rem;
+        font-weight: 400;
+        line-height: 1.02;
+    }
 
-	.hero-description {
-		max-width: 540px;
-		margin: 1.5rem 0 0;
-		color: rgba(245, 240, 226, 0.9);
-		font-size: 1.15rem;
-	}
+    .hero-description {
+        max-width: 540px;
+        margin: 1.5rem 0 0;
+        color: rgba(245, 240, 226, 0.9);
+        font-size: 1.15rem;
+    }
 
-	.hero-links {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 1.5rem;
-		margin-top: 2rem;
-	}
+    .hero-links {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
 
-	.hero-links a,
-	.after-copy a {
-		font-size: 1rem;
-		font-weight: 700;
-		text-decoration: none;
-	}
+    .hero-links a,
+    .after-copy a {
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
 
-	.primary-link {
-		padding: 0.75rem 1.1rem;
-		border-radius: 3px;
-		background: var(--home-lime);
-		color: #173c2e;
-	}
+    .primary-link {
+        padding: 0.75rem 1.1rem;
+        border-radius: 3px;
+        background: var(--home-lime);
+        color: #173c2e;
+    }
 
-	.primary-link:hover {
-		background: #e4f5a5;
-		color: #173c2e;
-	}
+    .primary-link:hover {
+        background: #e4f5a5;
+        color: #173c2e;
+    }
 
-	.secondary-link {
-		color: var(--home-cream);
-		text-decoration: underline !important;
-		text-decoration-color: rgba(245, 240, 226, 0.55) !important;
-		text-underline-offset: 5px;
-	}
+    .secondary-link {
+        color: var(--home-cream);
+        text-decoration: underline !important;
+        text-decoration-color: rgba(245, 240, 226, 0.55) !important;
+        text-underline-offset: 5px;
+    }
 
-	.secondary-link:hover {
-		color: var(--home-lime);
-	}
+    .secondary-link:hover {
+        color: var(--home-lime);
+    }
 
-	.photo-credit {
-		position: absolute;
-		right: 24px;
-		bottom: 18px;
-		max-width: calc(100% - 48px);
-		color: rgba(245, 240, 226, 0.82);
-		font-size: 0.72rem;
-		line-height: 1.4;
-		text-align: right;
-		text-decoration-color: rgba(245, 240, 226, 0.45);
-		text-underline-offset: 2px;
-	}
+    .photo-credit {
+        position: absolute;
+        right: 24px;
+        bottom: 18px;
+        max-width: calc(100% - 48px);
+        color: rgba(245, 240, 226, 0.82);
+        font-size: 0.72rem;
+        line-height: 1.4;
+        text-align: right;
+        text-decoration-color: rgba(245, 240, 226, 0.45);
+        text-underline-offset: 2px;
+    }
 
-	.home-after {
-		display: grid;
-		grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
-		align-items: end;
-		gap: 2rem;
-		max-width: 1040px;
-		margin: 0 auto;
-		padding: 48px 32px 60px;
-		color: var(--home-cream);
-	}
+    .home-transition {
+        position: relative;
+        isolation: isolate;
+        background: linear-gradient(180deg, #180b27 0%, #100618 100%);
+    }
 
-	.home-after .eyebrow {
-		margin-bottom: 0.7rem;
-	}
+    .home-after {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+        align-items: center;
+        gap: 2rem;
+        padding: 40px max(32px, calc((100% - 960px) / 2));
+        background: linear-gradient(135deg, #19092c 0%, #29103e 50%, #4d1558 100%);
+        color: var(--home-cream);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-	.home-after h2 {
-		margin: 0;
-		color: var(--home-cream);
-		font-family: Georgia, 'Times New Roman', serif;
-		font-size: 2.7rem;
-		font-weight: 400;
-	}
+    /* Target description block inside sticky header for smooth collapsing */
+    .home-after .after-copy {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 1;
+        max-height: 200px;
+        overflow: hidden;
+    }
 
-	.after-copy p {
-		max-width: 570px;
-		margin: 0 0 0.7rem;
-		color: rgba(245, 240, 226, 0.84);
-	}
+    /* When scrolled, compact the header and hide the text block */
+    .home-after.is-scrolled {
+        padding: 20px max(32px, calc((100% - 960px) / 2));
+        background: rgba(25, 9, 44, 0.95);
+        backdrop-filter: blur(12px);
+    }
 
-	.after-copy a {
-		color: var(--home-lime);
-	}
+    .home-after.is-scrolled .after-copy {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        margin: 0;
+    }
 
-	.after-copy a:hover {
-		color: #e4f5a5;
-	}
+    .home-posts {
+        position: relative;
+        z-index: 2;
+        padding: 4rem clamp(24px, 5vw, 64px) 6rem;
+        background: transparent;
+        color: var(--home-cream);
+    }
 
-	body.home-page footer {
-		background: #000;
-		color: #fff;
-	}
+    .home-posts .post-listing {
+        width: 100%;
+    }
 
-	body.home-page footer .social-links a {
-		color: rgba(245, 240, 226, 0.8);
-	}
+    .home-posts .title {
+        color: var(--home-cream) !important;
+    }
 
-	body.home-page footer .social-links a:hover {
-		color: var(--home-lime);
-	}
+    .home-posts .date {
+        color: rgba(245, 240, 226, 0.7) !important;
+    }
 
-	@media (max-width: 720px) {
-		.pool-hero {
-			height: max(610px, min(78svh, 760px));
-			padding: 116px 24px 88px;
-			background-position: center, 62% center;
-		}
+    .home-after .eyebrow {
+        margin-bottom: 0.4rem;
+        transition: margin 0.3s ease;
+    }
 
-		.pool-hero h1 {
-			font-size: 3.25rem;
-		}
+    .home-after.is-scrolled .eyebrow {
+        margin-bottom: 0.15rem;
+        font-size: 0.68rem;
+    }
 
-		.hero-description {
-			font-size: 1.05rem;
-		}
+    .home-after h2 {
+        margin: 0;
+        color: var(--home-cream);
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 2.7rem;
+        font-weight: 400;
+        transition: font-size 0.3s ease;
+    }
 
-		.home-after {
-			grid-template-columns: 1fr;
-			gap: 0.8rem;
-			padding: 36px 24px 44px;
-		}
+    .home-after.is-scrolled h2 {
+        font-size: 2rem;
+    }
 
-		.home-after h2 {
-			font-size: 2.35rem;
-		}
-	}
+    .after-copy p {
+        max-width: 570px;
+        margin: 0 0 0.7rem;
+        color: rgba(245, 240, 226, 0.84);
+    }
+
+    .after-copy a {
+        color: var(--home-lime);
+    }
+
+    .after-copy a:hover {
+        color: #e4f5a5;
+    }
+
+    body.home-page footer {
+        background: #000;
+        color: #fff;
+    }
+
+    body.home-page footer .social-links a {
+        color: rgba(245, 240, 226, 0.8);
+    }
+
+    body.home-page footer .social-links a:hover {
+        color: var(--home-lime);
+    }
+
+    @media (max-width: 720px) {
+        .pool-hero {
+            height: max(610px, min(78svh, 760px));
+            padding: 116px 24px 88px;
+            background-position: center, 62% center;
+        }
+
+        .pool-hero h1 {
+            font-size: 3.25rem;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+        }
+
+        .home-after {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            padding: 26px 24px 30px;
+        }
+
+        .home-after h2 {
+            font-size: 2.35rem;
+        }
+
+        .home-posts {
+            padding: 3rem 24px 4rem;
+        }
+    }
 </style>
 </html>
