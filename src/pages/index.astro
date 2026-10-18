@@ -54,22 +54,6 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
             </div>
         </main>
         <Footer />
-
-        <script>
-            // Shrinks the sticky header once scrolling starts past the hero
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    const header = document.querySelector('.home-after');
-                    if (header) {
-                        header.classList.toggle('is-scrolled', !entry.isIntersecting);
-                    }
-                },
-                { threshold: [1] }
-            );
-
-            const sentinel = document.querySelector('.pool-hero');
-            if (sentinel) observer.observe(sentinel);
-        </script>
     </body>
 
 <style is:global>
@@ -222,30 +206,45 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
         background: linear-gradient(135deg, #19092c 0%, #29103e 50%, #4d1558 100%);
         color: var(--home-cream);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Target description block inside sticky header for smooth collapsing */
     .home-after .after-copy {
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         opacity: 1;
         max-height: 200px;
         overflow: hidden;
     }
 
-    /* When scrolled, compact the header and hide the text block */
-    .home-after.is-scrolled {
-        padding: 20px max(32px, calc((100% - 960px) / 2));
-        background: rgba(25, 9, 44, 0.95);
-        backdrop-filter: blur(12px);
+    /* Native CSS Scroll Timeline Animation */
+    @supports (animation-timeline: scroll()) {
+        .home-after {
+            animation: shrink-header linear both;
+            animation-timeline: scroll(root);
+            animation-range: 15vh 45vh;
+        }
+
+        .home-after .after-copy {
+            animation: fade-out-copy linear both;
+            animation-timeline: scroll(root);
+            animation-range: 15vh 35vh;
+        }
     }
 
-    .home-after.is-scrolled .after-copy {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-10px);
-        pointer-events: none;
-        margin: 0;
+    @keyframes shrink-header {
+        to {
+            padding: 16px max(32px, calc((100% - 960px) / 2));
+            background: rgba(25, 9, 44, 0.96);
+            backdrop-filter: blur(12px);
+        }
+    }
+
+    @keyframes fade-out-copy {
+        to {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            margin: 0;
+        }
     }
 
     .home-posts {
@@ -270,12 +269,6 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
     .home-after .eyebrow {
         margin-bottom: 0.4rem;
-        transition: margin 0.3s ease;
-    }
-
-    .home-after.is-scrolled .eyebrow {
-        margin-bottom: 0.15rem;
-        font-size: 0.68rem;
     }
 
     .home-after h2 {
@@ -284,11 +277,6 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
         font-family: Georgia, 'Times New Roman', serif;
         font-size: 2.7rem;
         font-weight: 400;
-        transition: font-size 0.3s ease;
-    }
-
-    .home-after.is-scrolled h2 {
-        font-size: 2rem;
     }
 
     .after-copy p {
