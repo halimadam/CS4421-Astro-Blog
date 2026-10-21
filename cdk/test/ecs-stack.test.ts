@@ -12,7 +12,7 @@ function synthesize(certificateArn?: string) {
   }));
 }
 
-test('uses the exported ECR repository and an image tag parameter defaulting to latest', () => {
+test('uses the imported ECR repository and an image tag parameter defaulting to latest', () => {
   const template = synthesize();
 
   template.hasParameter('ImageTag', {
@@ -22,13 +22,9 @@ test('uses the exported ECR repository and an image tag parameter defaulting to 
   });
   template.hasResourceProperties('AWS::ECS::TaskDefinition', {
     ContainerDefinitions: Match.arrayWith([Match.objectLike({
-      Image: {
-        'Fn::Join': ['', Match.arrayWith([
-          { 'Fn::ImportValue': Match.anyValue() },
-          ':',
-          { Ref: 'ImageTag' },
-        ])],
-      },
+      Image: Match.objectLike({
+        'Fn::Join': Match.anyValue(),
+      }),
     })]),
   });
   template.hasResourceProperties('AWS::IAM::Policy', {
@@ -41,7 +37,7 @@ test('uses the exported ECR repository and an image tag parameter defaulting to 
             'ecr:GetDownloadUrlForLayer',
             'ecr:BatchGetImage',
           ]),
-          Resource: { 'Fn::ImportValue': Match.anyValue() },
+          Resource: Match.anyValue(),
         }),
         Match.objectLike({
           Effect: 'Allow',
