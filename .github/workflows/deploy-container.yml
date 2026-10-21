@@ -1,7 +1,6 @@
+name: Build and Deploy to AWS
 
-name: Deploy Container to AWS
-
-'on':
+on:
   push:
     branches: [main]
 
@@ -9,9 +8,21 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-      - run: npm ci && npm run test:unit # 1. Quality Gate
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Dependencies & Run Tests
+        run: |
+          npm ci
+          npm run test:unit
+
+      - name: Build Astro Site (Static & SSR)
+        run: npm run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -24,10 +35,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag & Push Image
+      - name: Build, Tag & Push Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/astro-blog:$IMAGE_TAG .
           docker push $ECR_REGISTRY/astro-blog:$IMAGE_TAG
+
+      - name: Deploy All CDK Stacks
+        run: |
+          cd cdk
+          npm ci
+          npx cdk deploy --all --require-approval never --parameters EcsStack:ImageTag=${{ github.sha }}
