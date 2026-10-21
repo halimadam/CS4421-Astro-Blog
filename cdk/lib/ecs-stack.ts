@@ -7,15 +7,12 @@ import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as logs from 'aws-cdk-lib/aws-logs';
 
 export class EcrStack extends cdk.Stack {
-  public readonly repository: ecr.Repository;
+  public readonly repository: ecr.IRepository;
 
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    this.repository = new ecr.Repository(this, 'AstroRepository', {
-      repositoryName: 'astro-blog',
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
+    this.repository = ecr.Repository.fromRepositoryName(this, 'AstroRepository', 'astro-blog');
 
     new cdk.CfnOutput(this, 'RepositoryUri', {
       value: this.repository.repositoryUri,
