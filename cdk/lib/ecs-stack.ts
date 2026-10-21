@@ -13,6 +13,7 @@ export class EcrStack extends cdk.Stack {
     super(scope, id, props);
 
     this.repository = new ecr.Repository(this, 'AstroRepository', {
+      repositoryName: 'astro-blog',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
