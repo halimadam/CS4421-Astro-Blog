@@ -22,7 +22,7 @@ test('uses the imported ECR repository and an image tag parameter defaulting to 
   });
   template.hasResourceProperties('AWS::ECS::TaskDefinition', {
     ContainerDefinitions: Match.arrayWith([Match.objectLike({
-      Image: Match.objectLike({
+      Image: {
         'Fn::Join': ['', Match.arrayWith([
           Match.stringLikeRegexp('.*dkr.ecr..*.amazonaws.com/astro-blog:'),
           { Ref: 'ImageTag' },
