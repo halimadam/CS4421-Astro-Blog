@@ -74,6 +74,8 @@ export class EcsStack extends cdk.Stack {
       },
     });
 
+    props.repository.grantPull(service.taskDefinition.obtainExecutionRole());
+
     service.targetGroup.configureHealthCheck({
       path: '/api/health/ready',
       healthyThresholdCount: 2,
