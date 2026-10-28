@@ -1,64 +1,255 @@
 ---
 export const prerender = true;
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import { Image } from 'astro:assets';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import waterfallPhoto from '../assets/nature-image-with-waterfall.jpg';
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
->
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="About Me" description="A little about my studies, the sports I love, and the things I enjoy." />
+	</head>
+	<body class="about-page">
+		<div class="about-backdrop" aria-hidden="true">
+			<Image
+				src={waterfallPhoto}
+				widths={[800, 1024]}
+				sizes="100vw"
+				format="webp"
+				alt=""
+				aria-hidden="true"
+				loading="eager"
+				fetchpriority="high"
+			/>
+		</div>
+		<div class="about-wash" aria-hidden="true"></div>
+		<Header />
+		<main class="about-main">
+			<section class="about-card about-intro" aria-labelledby="about-title">
+				<p class="about-eyebrow">A LITTLE ABOUT ME</p>
+				<h1 id="about-title">Learning, playing, and trying to travel.</h1>
+				<p>
+					I’m a first-year student at the University of Limerick on the ISE course. Right now, that
+					means learning Java, DevOps and computer organisation. I’m still finding my feet with all
+					of it, so if I occasionally look like I’m confidently working through a problem, there’s
+					a fair chance I’m waiting for the problem to explain itself.
+				</p>
+			</section>
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+			<div class="about-grid">
+				<section class="about-card" aria-labelledby="learning-title">
+					<p class="about-eyebrow">ONE THING AT A TIME</p>
+					<h2 id="learning-title">A year of learning</h2>
+					<p>
+						Java, DevOps and computer organisation are the things I’m learning this year. It’s a
+						varied mix, and I’m taking it one step at a time. I try to meet new ideas with curiosity
+						and a sense of humour; if learning were always a straight line, it would be suspiciously
+						convenient. I’m happy to figure things out as I go.
+					</p>
+				</section>
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+				<section class="about-card" aria-labelledby="sport-title">
+					<p class="about-eyebrow">ANY EXCUSE FOR A GAME</p>
+					<h2 id="sport-title">Sport, with one small catch</h2>
+					<p>
+						I love sport: basketball, soccer, pool, table tennis, and honestly almost any sport.
+						Pool is the slightly awkward exception to my confidence: I’m actually not good at it.
+						That’s a mildly inconvenient fact for someone writing a <a href="/blog">blog about
+						pool</a>, but it does make the subject matter honest. I’ve even written about
+						<a href="/blog/how-to-break/">breaking an 8-ball rack</a>; advice from a learner, not
+						a pool champion.
+					</p>
+				</section>
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+				<section class="about-card about-card-wide" aria-labelledby="books-title">
+					<p class="about-eyebrow">OFF THE SYLLABUS</p>
+					<h2 id="books-title">Books and the idea of travelling</h2>
+					<p>
+						I love reading books, just not academic ones. That little distinction is doing a lot of
+						work: I’m much more enthusiastic about picking up a book when it isn’t academic reading.
+						I love the idea of travelling, too. Imagining somewhere new sounds wonderful; my wallet
+						does not share that enthusiasm. For now, the dream is free, which is fortunate because
+						my wallet has not volunteered to fund the itinerary.
+					</p>
+				</section>
+			</div>
+		</main>
+		<Footer />
+	</body>
 
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
-</Layout>
+	<style is:global>
+		body.about-page {
+			--about-ink: #263a31;
+			--about-pine: #23483c;
+			--about-teal: #175c54;
+			--about-cream: #faf9f2;
+			position: relative;
+			isolation: isolate;
+			min-height: 100vh;
+			background: transparent;
+			color: var(--about-ink);
+		}
+
+		body.about-page .about-backdrop,
+		body.about-page .about-wash {
+			position: fixed;
+			inset: 0;
+			z-index: -1;
+			pointer-events: none;
+		}
+
+		body.about-page .about-backdrop img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			object-position: center;
+		}
+
+		body.about-page .about-wash {
+			z-index: -1;
+			background:
+				linear-gradient(180deg, rgba(237, 244, 229, 0.48), rgba(226, 238, 226, 0.58) 52%, rgba(245, 239, 222, 0.68)),
+				linear-gradient(110deg, rgba(26, 76, 63, 0.15), transparent 58%);
+		}
+
+		body.about-page header {
+			position: relative;
+			z-index: 1;
+			border-bottom: 1px solid rgba(35, 72, 60, 0.18);
+			background: rgba(250, 249, 242, 0.95);
+			box-shadow: 0 2px 12px rgba(27, 55, 43, 0.12);
+		}
+
+		body.about-page header h2 a,
+		body.about-page header nav a {
+			color: var(--about-pine);
+		}
+
+		body.about-page header nav a.active {
+			border-bottom-color: var(--about-teal);
+		}
+
+		body.about-page header nav a:hover {
+			color: var(--about-teal);
+		}
+
+		body.about-page .about-main {
+			box-sizing: border-box;
+			width: min(100% - 2rem, 960px);
+			max-width: none;
+			margin: 0 auto;
+			padding: clamp(2rem, 6vw, 5rem) 0;
+		}
+
+		body.about-page .about-card {
+			border: 1px solid rgba(35, 72, 60, 0.16);
+			border-radius: 20px;
+			background: rgba(250, 249, 242, 0.96);
+			box-shadow: 0 14px 40px rgba(25, 55, 44, 0.16);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+		}
+
+		body.about-page .about-intro {
+			max-width: 760px;
+			margin: 0 auto 1.25rem;
+			padding: clamp(1.4rem, 4vw, 2.75rem);
+		}
+
+		body.about-page .about-eyebrow {
+			margin: 0 0 0.6rem;
+			color: var(--about-teal);
+			font-size: 0.72rem;
+			font-weight: 700;
+			letter-spacing: 0.12em;
+		}
+
+		body.about-page .about-card h1,
+		body.about-page .about-card h2 {
+			color: var(--about-ink);
+			font-family: Georgia, 'Times New Roman', serif;
+			font-weight: 500;
+			line-height: 1.12;
+		}
+
+		body.about-page .about-card h1 {
+			max-width: 680px;
+			margin-bottom: 1rem;
+			font-size: clamp(2.2rem, 6vw, 4.2rem);
+		}
+
+		body.about-page .about-card h2 {
+			margin-bottom: 0.75rem;
+			font-size: clamp(1.5rem, 3vw, 2rem);
+		}
+
+		body.about-page .about-card p:not(.about-eyebrow) {
+			margin: 0;
+			color: var(--about-ink);
+			font-size: 1rem;
+			line-height: 1.75;
+		}
+
+		body.about-page .about-card a {
+			color: var(--about-teal);
+			font-weight: 700;
+			text-decoration-thickness: 1px;
+			text-underline-offset: 3px;
+		}
+
+		body.about-page .about-card a:hover {
+			color: var(--about-pine);
+		}
+
+		body.about-page .about-grid {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 1.25rem;
+		}
+
+		body.about-page .about-grid .about-card {
+			padding: clamp(1.25rem, 3vw, 2rem);
+		}
+
+		body.about-page .about-grid .about-card-wide {
+			grid-column: 1 / -1;
+		}
+
+		body.about-page footer {
+			border-top: 1px solid rgba(35, 72, 60, 0.18);
+			background: rgba(250, 249, 242, 0.96);
+			color: var(--about-ink);
+		}
+
+		@media (max-width: 640px) {
+			body.about-page .about-main {
+				width: min(100% - 1.5rem, 560px);
+				padding: 1.5rem 0 2rem;
+			}
+
+			body.about-page .about-grid {
+				grid-template-columns: 1fr;
+				gap: 1rem;
+			}
+
+			body.about-page .about-grid .about-card-wide {
+				grid-column: auto;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			body.about-page *,
+			body.about-page *::before,
+			body.about-page *::after {
+				scroll-behavior: auto !important;
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
+			}
+		}
+	</style>
+</html>
