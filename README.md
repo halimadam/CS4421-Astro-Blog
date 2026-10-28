@@ -1,63 +1,55 @@
-# Astro Starter Kit: Blog
+# A Little Life Between the Shots
+
+A personal blog about pool, with practical tips, stories, and small observations from around the table. The posts cover 8-ball breaks, stance and bridge basics, cue-ball position, safety play, and pool-table etiquette.
+
+The site also includes two interactive pool features:
+
+- **Break & run the table** — an 8-ball practice game embedded in the break tutorial. Place the cue ball, aim, set shot power, and practice running a group.
+- **8-Ball Run** — a pool-themed mini-game on the About page. Jump over obstacles, track your score, and save a high score in the browser.
+
+## Built with
+
+- [Astro](https://astro.build/) with the Node.js standalone adapter
+- Markdown content collections for blog posts
+- TypeScript utilities and Vitest unit tests
+- Docker for containerized production builds
+
+## Getting started
+
+Use Node.js `>=22.22.3` and npm.
 
 ```sh
-npm create astro@latest -- --template blog
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Astro prints the local development URL in the terminal (by default, `http://localhost:4321`).
 
-Features:
+## Available commands
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the local Astro development server |
+| `npm run check` | Run Astro and TypeScript checks |
+| `npm run lint` | Lint the project with ESLint |
+| `npm run test:unit` | Run unit tests with Vitest |
+| `npm run build` | Build the production site into `dist/` |
+| `npm run preview` | Preview the production build locally |
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project structure
 
 ```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+src/
+├── assets/       # Images and local fonts
+├── components/   # Shared UI and interactive pool games
+├── content/
+│   ├── authors/  # Author profiles
+│   └── blog/     # Markdown and MDX posts
+├── layouts/      # Blog post layout
+├── pages/        # Home, About, blog, RSS, and health-check routes
+├── styles/       # Global styles
+└── utils/        # Blog, date, and game logic
+cdk/              # AWS infrastructure defined with AWS CDK
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Blog posts live in `src/content/blog/` and use the schema in `src/content.config.ts` for their frontmatter. The CI workflow runs linting, checks, unit tests, and production builds; pushes to `main` trigger the AWS container deployment workflow.
