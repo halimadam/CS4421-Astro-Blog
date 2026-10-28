@@ -1,9 +1,10 @@
 ---
 title: 'How to Break an 8-Ball'
 description: 'Build a reliable 8-ball break with a tight rack, a balanced stance, controlled power, and a clear understanding of the rules.'
-pubDate: 'Oct 19 2026'
+pubDate: '2026-10-18'
 heroImage: '../../assets/how-to-break-an-8-ball.jpg'
 author: 'halim-adam'
+featured: true
 ---
 
 A good 8-ball break is not just the hardest shot you can hit. It is a repeatable way to spread the rack, keep the cue ball under control, and give yourself a chance to continue. Start with a solid setup, then add power only while you can keep the cue ball on the table.
