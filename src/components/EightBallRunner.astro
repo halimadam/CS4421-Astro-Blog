@@ -1,0 +1,533 @@
+<section class="runner-section" aria-labelledby="runner-title">
+	<p class="runner-eyebrow">A LITTLE POOL-SIDE PAUSE</p>
+	<h2 id="runner-title">Take a break: 8-Ball Run</h2>
+	<p class="runner-instructions" id="runner-instructions">
+		Press Start or jump to begin. Dodge the pool gear with Space, Arrow Up, W, a tap or click on the
+		game, or the Jump button. Focus the game area to use the keyboard. Space or Enter restarts after
+		game over.
+	</p>
+
+	<div class="runner-panel" data-runner>
+		<div class="runner-live" role="status" aria-live="polite" aria-atomic="false">
+			<p>
+				Score <strong data-score aria-label="Score 0">0</strong>
+				<span aria-hidden="true">·</span>
+				High score <strong data-high-score aria-label="High score 0">0</strong>
+			</p>
+			<p data-message>Press Start or jump when you’re ready.</p>
+		</div>
+
+		<div
+			class="runner-board"
+			data-board
+			tabindex="0"
+			role="group"
+			aria-label="8-Ball Run game area"
+			aria-describedby="runner-instructions"
+		>
+			<canvas width="720" height="210" aria-hidden="true"></canvas>
+		</div>
+
+		<div class="runner-controls" aria-label="Game controls">
+			<button type="button" data-start>Start</button>
+			<button type="button" data-jump>Jump</button>
+			<button type="button" data-restart hidden>Restart</button>
+		</div>
+	</div>
+</section>
+
+<script>
+	import {
+		advanceJump,
+		advanceObstacles,
+		beginJump,
+		getNextObstacleGap,
+		getRunnerSpeed,
+		hasCollision,
+		shouldSpawnObstacle,
+		spawnObstacle,
+	} from '../utils/runner';
+	import type { JumpState, RunnerObstacle, RunnerRect } from '../utils/runner';
+
+	const canvas = document.querySelector<HTMLCanvasElement>('[data-runner] canvas');
+	const runner = document.querySelector<HTMLElement>('[data-runner]');
+	const board = runner?.querySelector<HTMLElement>('[data-board]');
+	const scoreOutput = runner?.querySelector<HTMLElement>('[data-score]');
+	const highScoreOutput = runner?.querySelector<HTMLElement>('[data-high-score]');
+	const messageOutput = runner?.querySelector<HTMLElement>('[data-message]');
+	const startButton = runner?.querySelector<HTMLButtonElement>('[data-start]');
+	const jumpButton = runner?.querySelector<HTMLButtonElement>('[data-jump]');
+	const restartButton = runner?.querySelector<HTMLButtonElement>('[data-restart]');
+	const context = canvas?.getContext('2d');
+
+	if (canvas && runner && board && scoreOutput && highScoreOutput && messageOutput &&
+		startButton && jumpButton && restartButton && context) {
+		const gameBoard = board;
+		const gameCanvas = canvas;
+		const scoreField = scoreOutput;
+		const highScoreField = highScoreOutput;
+		const messageField = messageOutput;
+		const drawingContext = context;
+		const startControl = startButton;
+		const jumpControl = jumpButton;
+		const restartControl = restartButton;
+		const WIDTH = 720;
+		const HEIGHT = 210;
+		const GROUND_Y = 170;
+		const PLAYER_X = 72;
+		const PLAYER_RADIUS = 19;
+		const SCORE_DISTANCE = 150;
+		const HIGH_SCORE_KEY = 'about-eight-ball-run-high-score';
+		type Phase = 'ready' | 'running' | 'paused' | 'game-over';
+
+		let phase: Phase = 'ready';
+		let jump: JumpState = { height: 0, velocity: 0, grounded: true };
+		let obstacles: RunnerObstacle[] = [];
+		let elapsedSeconds = 0;
+		let distanceTravelled = 0;
+		let nextSpawnDistance = 300;
+		let spawnSequence = 0;
+		let score = 0;
+		let bestScore = 0;
+		let persistedHighScore = 0;
+		let storageAvailable = true;
+		let animationFrame = 0;
+		let lastFrame = 0;
+		let resizeObserver: ResizeObserver | undefined;
+
+		try {
+			const storedScore = Number(window.localStorage.getItem(HIGH_SCORE_KEY));
+			bestScore = Number.isFinite(storedScore) ? Math.max(0, storedScore) : 0;
+			persistedHighScore = bestScore;
+		} catch {
+			storageAvailable = false;
+		}
+
+		function updateScoreboard(message: string): void {
+			scoreField.textContent = String(score);
+			highScoreField.textContent = String(bestScore);
+			messageField.textContent = storageAvailable
+				? message
+				: `${message} High-score storage is unavailable, so this score will not be saved.`;
+		}
+
+		function updateControls(): void {
+			startControl.hidden = phase !== 'ready';
+			jumpControl.hidden = phase === 'game-over';
+			restartControl.hidden = phase !== 'game-over';
+		}
+
+		function drawBall(cx: number, cy: number, radius: number, rotation: number): void {
+			const context = drawingContext;
+			const gradient = context.createRadialGradient(
+				cx - radius * 0.35,
+				cy - radius * 0.4,
+				radius * 0.08,
+				cx,
+				cy,
+				radius,
+			);
+			gradient.addColorStop(0, '#39443d');
+			gradient.addColorStop(0.55, '#111713');
+			gradient.addColorStop(1, '#050806');
+			context.fillStyle = gradient;
+			context.beginPath();
+			context.arc(cx, cy, radius, 0, Math.PI * 2);
+			context.fill();
+
+			context.save();
+			context.translate(cx, cy);
+			context.rotate(rotation);
+			context.fillStyle = '#fffdf2';
+			context.beginPath();
+			context.arc(0, 0, radius * 0.48, 0, Math.PI * 2);
+			context.fill();
+			context.fillStyle = '#111713';
+			context.font = `bold ${Math.round(radius * 0.75)}px Arial, sans-serif`;
+			context.textAlign = 'center';
+			context.textBaseline = 'middle';
+			context.fillText('8', 0, 1);
+			context.restore();
+		}
+
+		function drawObstacle(obstacle: RunnerObstacle): void {
+			const context = drawingContext;
+			const top = GROUND_Y - obstacle.height;
+			if (obstacle.kind === 'chalk') {
+				context.fillStyle = '#91aa8d';
+				context.fillRect(obstacle.x, top + 3, obstacle.width, obstacle.height - 3);
+				context.fillStyle = '#b9c9ad';
+				context.fillRect(obstacle.x + 4, top, obstacle.width - 8, 5);
+				context.strokeStyle = '#71896f';
+				context.lineWidth = 2;
+				context.beginPath();
+				context.moveTo(obstacle.x + 7, top + 12);
+				context.lineTo(obstacle.x + obstacle.width - 7, top + 12);
+				context.stroke();
+				return;
+			}
+
+			if (obstacle.kind === 'cue') {
+				context.strokeStyle = '#815d3e';
+				context.lineWidth = obstacle.height;
+				context.lineCap = 'round';
+				context.beginPath();
+				context.moveTo(obstacle.x, GROUND_Y - obstacle.height / 2);
+				context.lineTo(obstacle.x + obstacle.width, GROUND_Y - obstacle.height / 2);
+				context.stroke();
+				context.strokeStyle = '#d6bd8b';
+				context.lineWidth = 2;
+				context.beginPath();
+				context.moveTo(obstacle.x + obstacle.width * 0.82, GROUND_Y - obstacle.height / 2);
+				context.lineTo(obstacle.x + obstacle.width, GROUND_Y - obstacle.height / 2);
+				context.stroke();
+				return;
+			}
+
+			const balls = [
+				{ x: obstacle.x + 13, y: GROUND_Y - 12, color: '#b67a46' },
+				{ x: obstacle.x + 35, y: GROUND_Y - 12, color: '#6e9472' },
+				{ x: obstacle.x + 24, y: GROUND_Y - 31, color: '#e1d8b8' },
+			];
+			for (const ball of balls) {
+				context.fillStyle = ball.color;
+				context.beginPath();
+				context.arc(ball.x, ball.y, 11, 0, Math.PI * 2);
+				context.fill();
+				context.strokeStyle = 'rgba(36, 58, 46, 0.35)';
+				context.lineWidth = 1;
+				context.stroke();
+			}
+		}
+
+		function draw(): void {
+			const context = drawingContext;
+			const rollingAngle = distanceTravelled / PLAYER_RADIUS;
+			context.clearRect(0, 0, WIDTH, HEIGHT);
+			context.fillStyle = '#edf2e8';
+			context.fillRect(0, 0, WIDTH, HEIGHT);
+
+			context.fillStyle = '#dfe9dc';
+			context.beginPath();
+			context.moveTo(0, 135);
+			context.quadraticCurveTo(150, 88, 300, 137);
+			context.quadraticCurveTo(490, 85, WIDTH, 132);
+			context.lineTo(WIDTH, GROUND_Y);
+			context.lineTo(0, GROUND_Y);
+			context.closePath();
+			context.fill();
+
+			context.fillStyle = '#c9d8c8';
+			context.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
+			context.strokeStyle = '#6f8b70';
+			context.lineWidth = 2;
+			context.beginPath();
+			context.moveTo(0, GROUND_Y);
+			context.lineTo(WIDTH, GROUND_Y);
+			context.stroke();
+
+			for (const obstacle of obstacles) drawObstacle(obstacle);
+
+			context.fillStyle = 'rgba(38, 58, 49, 0.18)';
+			context.beginPath();
+			context.ellipse(PLAYER_X, GROUND_Y - 2, PLAYER_RADIUS * 1.15, 4, 0, 0, Math.PI * 2);
+			context.fill();
+			drawBall(
+				PLAYER_X,
+				GROUND_Y - PLAYER_RADIUS - jump.height,
+				PLAYER_RADIUS,
+				rollingAngle,
+			);
+
+			if (phase === 'ready') {
+				context.fillStyle = 'rgba(250, 249, 242, 0.88)';
+				context.fillRect(216, 72, 288, 42);
+				context.fillStyle = '#23483c';
+				context.font = '600 18px Arial, sans-serif';
+				context.textAlign = 'center';
+				context.textBaseline = 'middle';
+				context.fillText('Ready when you are', WIDTH / 2, 93);
+			}
+		}
+
+		function resizeCanvas(): void {
+			const pixelRatio = window.devicePixelRatio || 1;
+			gameCanvas.width = WIDTH * pixelRatio;
+			gameCanvas.height = HEIGHT * pixelRatio;
+			drawingContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+			draw();
+		}
+
+		function finishRun(): void {
+			phase = 'game-over';
+			cancelAnimationFrame(animationFrame);
+			if (score > persistedHighScore) {
+				bestScore = score;
+				persistedHighScore = score;
+				try {
+					window.localStorage.setItem(HIGH_SCORE_KEY, String(bestScore));
+				} catch {
+					storageAvailable = false;
+				}
+			}
+			updateControls();
+			updateScoreboard(`Game over. Final score: ${score}. Press Space or Enter, or choose Restart, to play again.`);
+			draw();
+		}
+
+		function runFrame(timestamp: number): void {
+			if (phase !== 'running') return;
+			const seconds = lastFrame === 0 ? 0 : Math.min((timestamp - lastFrame) / 1000, 0.05);
+			lastFrame = timestamp;
+			elapsedSeconds += seconds;
+
+			const speed = getRunnerSpeed(elapsedSeconds);
+			jump = advanceJump(jump.height, jump.velocity, seconds);
+			distanceTravelled += speed * seconds;
+			obstacles = advanceObstacles(obstacles, speed, seconds);
+
+			if (shouldSpawnObstacle(distanceTravelled, nextSpawnDistance)) {
+				obstacles.push(spawnObstacle(WIDTH + 12, spawnSequence));
+				nextSpawnDistance += getNextObstacleGap(spawnSequence);
+				spawnSequence += 1;
+			}
+
+			const nextScore = Math.floor(distanceTravelled / SCORE_DISTANCE);
+			if (nextScore !== score) {
+				score = nextScore;
+				bestScore = Math.max(bestScore, score);
+				scoreField.textContent = String(score);
+				scoreField.setAttribute('aria-label', `Score ${score}`);
+				highScoreField.textContent = String(bestScore);
+				highScoreField.setAttribute('aria-label', `High score ${bestScore}`);
+			}
+
+			const player: RunnerRect = {
+				x: PLAYER_X - PLAYER_RADIUS,
+				y: GROUND_Y - PLAYER_RADIUS * 2 - jump.height,
+				width: PLAYER_RADIUS * 2,
+				height: PLAYER_RADIUS * 2,
+			};
+			const collisionObstacles = obstacles.map((obstacle) => ({
+				...obstacle,
+				y: GROUND_Y - obstacle.height,
+			}));
+			if (hasCollision(player, collisionObstacles)) {
+				finishRun();
+				return;
+			}
+
+			draw();
+			animationFrame = requestAnimationFrame(runFrame);
+		}
+
+		function startRun(jumpImmediately: boolean): void {
+			cancelAnimationFrame(animationFrame);
+			phase = 'running';
+			jump = jumpImmediately ? beginJump() : { height: 0, velocity: 0, grounded: true };
+			obstacles = [];
+			elapsedSeconds = 0;
+			distanceTravelled = 0;
+			nextSpawnDistance = 300;
+			spawnSequence = 0;
+			score = 0;
+			lastFrame = 0;
+			updateControls();
+			updateScoreboard('Run started. Jump over the pool gear!');
+			draw();
+			animationFrame = requestAnimationFrame(runFrame);
+		}
+
+		function jumpOrStart(): void {
+			if (phase === 'ready') {
+				startRun(true);
+			} else if (phase === 'running' && jump.grounded) {
+				jump = beginJump();
+			}
+		}
+
+		function onKeyDown(event: KeyboardEvent): void {
+			const target = event.target;
+			if (target instanceof HTMLElement && target.closest('button, a, input, select, textarea, [contenteditable="true"]')) {
+				return;
+			}
+
+			const gameHasFocus = gameBoard.contains(document.activeElement);
+			const keyboardActive = gameHasFocus || phase === 'running';
+			if (!keyboardActive) return;
+
+			const isSpace = event.code === 'Space';
+			const isUp = event.code === 'ArrowUp';
+			const isJumpKey = isSpace || isUp || event.code === 'KeyW';
+			if ((isSpace || isUp) && keyboardActive) event.preventDefault();
+
+			if (phase === 'game-over' && (isSpace || event.code === 'Enter')) {
+				startRun(false);
+			} else if (isJumpKey) {
+				jumpOrStart();
+			}
+		}
+
+		gameBoard.addEventListener('click', () => {
+			gameBoard.focus({ preventScroll: true });
+			jumpOrStart();
+		});
+		startControl.addEventListener('click', () => startRun(false));
+		jumpControl.addEventListener('click', jumpOrStart);
+		restartControl.addEventListener('click', () => startRun(false));
+		window.addEventListener('keydown', onKeyDown);
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden && phase === 'running') {
+				phase = 'paused';
+				cancelAnimationFrame(animationFrame);
+				updateScoreboard('Paused while this tab is hidden. Return to keep playing.');
+			} else if (!document.hidden && phase === 'paused') {
+				phase = 'running';
+				lastFrame = 0;
+				animationFrame = requestAnimationFrame(runFrame);
+			}
+		});
+
+		resizeObserver = new ResizeObserver(resizeCanvas);
+		resizeObserver.observe(gameBoard);
+		window.addEventListener('resize', resizeCanvas);
+		updateControls();
+		updateScoreboard('Press Start or jump when you’re ready.');
+		resizeCanvas();
+	}
+</script>
+
+<style>
+	.runner-section {
+		margin-top: 2rem;
+		padding: clamp(1rem, 3vw, 1.75rem);
+		border: 1px solid rgba(35, 72, 60, 0.16);
+		border-radius: 20px;
+		background: rgba(250, 249, 242, 0.96);
+		box-shadow: 0 14px 40px rgba(25, 55, 44, 0.16);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		color: #263a31;
+	}
+
+	.runner-eyebrow {
+		margin: 0 0 0.5rem;
+		color: #175c54;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+	}
+
+	.runner-section h2 {
+		margin: 0 0 0.5rem;
+		color: #263a31;
+		font-family: Georgia, 'Times New Roman', serif;
+		font-size: clamp(1.7rem, 4vw, 2.4rem);
+		font-weight: 500;
+		line-height: 1.15;
+	}
+
+	.runner-instructions {
+		max-width: 760px;
+		margin: 0 0 1rem;
+		color: #263a31;
+		font-size: 0.95rem;
+		line-height: 1.65;
+	}
+
+	.runner-panel {
+		padding: clamp(0.85rem, 2.5vw, 1.4rem);
+		border: 1px solid rgba(35, 72, 60, 0.2);
+		border-radius: 20px;
+		background: rgba(250, 249, 242, 0.96);
+		box-shadow: 0 14px 40px rgba(25, 55, 44, 0.17);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+	}
+
+	.runner-live {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+		min-height: 3.2em;
+		margin-bottom: 0.75rem;
+		color: #263a31;
+		font-size: 0.84rem;
+	}
+
+	.runner-live p {
+		margin: 0;
+	}
+
+	.runner-live strong {
+		color: #175c54;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.runner-board {
+		overflow: hidden;
+		width: 100%;
+		border: 1px solid rgba(35, 72, 60, 0.25);
+		border-radius: 12px;
+		background: #edf2e8;
+		cursor: pointer;
+		touch-action: manipulation;
+	}
+
+	.runner-board:focus-visible {
+		outline: 3px solid #175c54;
+		outline-offset: 4px;
+	}
+
+	.runner-board canvas {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.runner-controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+		margin-top: 0.9rem;
+	}
+
+	.runner-controls button {
+		min-width: 6rem;
+		padding: 0.6rem 1rem;
+		border: 1px solid #23483c;
+		border-radius: 999px;
+		background: #23483c;
+		color: #fffdf2;
+		font: inherit;
+		font-size: 0.9rem;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	.runner-controls button:hover {
+		background: #175c54;
+	}
+
+	.runner-controls button:focus-visible {
+		outline: 3px solid #175c54;
+		outline-offset: 3px;
+	}
+
+	.runner-controls button[hidden] {
+		display: none;
+	}
+
+	@media (max-width: 480px) {
+		.runner-live {
+			display: block;
+		}
+
+		.runner-live p + p {
+			margin-top: 0.3rem;
+		}
+	}
+</style>
