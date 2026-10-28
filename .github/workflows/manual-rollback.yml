@@ -1,0 +1,32 @@
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'ECR image tag (commit SHA) to roll back to'
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ inputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Check the image tag exists in ECR
+        run: aws ecr describe-images --repository-name astro-blog --image-ids imageTag=$IMAGE_TAG
+      - name: Build site (CDK needs dist/ to synthesise)
+        run: npm ci && npm run build
+      - name: Redeploy ECS with the old image
+        run: |
+          cd cdk && npm ci
+          npx cdk deploy EcsStack --exclusively --require-approval never --parameters EcsStack:ImageTag=$IMAGE_TAG
