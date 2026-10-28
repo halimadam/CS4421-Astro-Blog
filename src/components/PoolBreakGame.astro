@@ -1,0 +1,751 @@
+<section class="break-game" aria-labelledby="break-game-title" data-break-game>
+	<div class="game-heading">
+		<p class="eyebrow">Practice table</p>
+		<h2 id="break-game-title">Break &amp; run the table</h2>
+		<p>Set the cue ball in the kitchen, break the rack, then choose solids or stripes and practice potting your group.</p>
+	</div>
+
+	<div class="table-wrap">
+		<canvas
+			width="900"
+			height="500"
+			aria-label="Interactive 8-ball pool table. Drag the cue ball to place it, drag elsewhere to aim, then take your shot."
+		>
+			An interactive 8-ball practice game. Use the controls below to aim, set power, and take your shot.
+		</canvas>
+	</div>
+
+	<div class="game-toolbar">
+		<p class="game-phase" data-phase>BREAK SHOT</p>
+		<p class="group-score" data-score>Choose your group after the break</p>
+		<div class="group-picker" role="group" aria-label="Choose your group">
+			<button class="group-button" type="button" data-group="solids" aria-pressed="false">Solids</button>
+			<button class="group-button" type="button" data-group="stripes" aria-pressed="false">Stripes</button>
+		</div>
+	</div>
+
+	<div class="controls">
+		<label class="control">
+			<span>Aim <output data-angle-output>0°</output></span>
+			<input data-angle type="range" min="-45" max="45" value="0" aria-label="Aim angle" />
+		</label>
+		<label class="control">
+			<span>Power <output data-power-output>90%</output></span>
+			<input data-power type="range" min="10" max="100" value="90" aria-label="Shot power" />
+		</label>
+		<div class="actions">
+			<button class="shoot-button" type="button" data-shoot>Break!</button>
+			<button class="reset-button" type="button" data-reset>New rack</button>
+		</div>
+	</div>
+
+	<p class="game-status" data-status role="status" aria-live="polite" aria-atomic="true">
+		Drag the cue ball anywhere behind the head string. Aim with the slider or by clicking the table.
+	</p>
+	<p class="game-help">A legal break pockets a ball or drives four object balls to a rail. After the break, pocket your group; clear it before the 8-ball.</p>
+</section>
+
+<style>
+	.break-game {
+		margin: 2.5em 0 3em;
+		padding: 1.5em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 18px;
+		background: rgba(255, 255, 255, 0.84);
+		box-shadow: var(--box-shadow);
+	}
+
+	:global(body.pool-break-post) .break-game {
+		border-color: rgba(255, 71, 123, 0.55);
+		background: linear-gradient(145deg, rgba(48, 12, 26, 0.97), rgba(30, 10, 20, 0.98));
+		box-shadow: 0 0 25px rgba(255, 28, 91, 0.14), 0 12px 32px rgba(0, 0, 0, 0.25);
+		color: #ffeaf1;
+	}
+
+	:global(body.pool-break-post) .game-heading h2 {
+		color: #fff3f7;
+		text-shadow: 0 0 16px rgba(255, 44, 105, 0.22);
+	}
+
+	:global(body.pool-break-post) .eyebrow,
+	:global(body.pool-break-post) output {
+		color: #ff739e;
+	}
+
+	.game-heading {
+		margin-bottom: 1.25em;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.35em;
+		color: #18764d;
+		font-size: 0.72em;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.game-heading h2 {
+		margin: 0 0 0.35em;
+		font-size: 1.7em;
+	}
+
+	.game-heading > p:last-child {
+		margin: 0;
+		font-size: 0.88em;
+	}
+
+	.table-wrap {
+		overflow: hidden;
+		border: 7px solid #402719;
+		border-radius: 18px;
+		background: #422719;
+		box-shadow: inset 0 0 0 2px #9a6b3f, 0 8px 18px rgba(30, 20, 12, 0.2);
+	}
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: auto;
+		touch-action: none;
+		cursor: crosshair;
+	}
+
+	.game-toolbar {
+		display: flex;
+		gap: 0.8em 1.1em;
+		align-items: center;
+		flex-wrap: wrap;
+		margin-top: 1em;
+	}
+
+	.game-phase {
+		margin: 0;
+		padding: 0.25em 0.65em;
+		border-radius: 999px;
+		background: #e9f2ec;
+		color: #175c3d;
+		font-size: 0.63em;
+		font-weight: 800;
+		letter-spacing: 0.09em;
+	}
+
+	.group-score {
+		flex: 1;
+		margin: 0;
+		font-size: 0.75em;
+		font-weight: 700;
+	}
+
+	.group-picker {
+		display: flex;
+		gap: 0.4em;
+	}
+
+	button {
+		min-height: 38px;
+		padding: 0.4em 0.8em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 8px;
+		background: white;
+		color: rgb(var(--gray-dark));
+		font: inherit;
+		font-size: 0.72em;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	button:focus-visible,
+	input:focus-visible {
+		outline: 3px solid #e6a837;
+		outline-offset: 3px;
+	}
+
+	button:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+
+	.group-button[aria-pressed='true'] {
+		border-color: #18764d;
+		background: #e9f2ec;
+		color: #175c3d;
+	}
+
+	.controls {
+		display: grid;
+		grid-template-columns: minmax(110px, 1fr) minmax(110px, 1fr) auto;
+		gap: 1em;
+		align-items: end;
+		margin-top: 1em;
+	}
+
+	.control {
+		display: grid;
+		gap: 0.35em;
+		font-size: 0.75em;
+		font-weight: 700;
+	}
+
+	output {
+		float: right;
+		color: #18764d;
+		font-variant-numeric: tabular-nums;
+	}
+
+	input[type='range'] {
+		width: 100%;
+		margin: 0.3em 0;
+		accent-color: #18764d;
+		cursor: pointer;
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.5em;
+	}
+
+	.shoot-button {
+		border-color: #18764d;
+		background: #18764d;
+		color: white;
+	}
+
+	.shoot-button:hover:not(:disabled) {
+		background: #105c3a;
+	}
+
+	.reset-button {
+		background: rgb(var(--gray-light));
+	}
+
+	.reset-button:hover {
+		background: #d7dce5;
+	}
+
+	.game-status {
+		min-height: 1.7em;
+		margin: 0.85em 0 0.25em;
+		font-size: 0.78em;
+		font-weight: 700;
+	}
+
+	.game-help {
+		margin: 0;
+		color: rgb(var(--gray));
+		font-size: 0.68em;
+	}
+
+	@media (max-width: 600px) {
+		.break-game {
+			padding: 1em;
+		}
+
+		.controls {
+			grid-template-columns: 1fr 1fr;
+			gap: 0.75em;
+		}
+
+		.actions {
+			grid-column: 1 / -1;
+		}
+
+		.actions button {
+			flex: 1;
+		}
+	}
+</style>
+
+<script>
+	type Group = 'solids' | 'stripes';
+	type Ball = {
+		x: number;
+		y: number;
+		vx: number;
+		vy: number;
+		number: number;
+		rotation: number;
+		pocketed: boolean;
+	};
+
+	const width = 900;
+	const height = 500;
+	const radius = 12;
+	const table = { left: 50, right: 850, top: 50, bottom: 450 };
+	const headString = 250;
+	const footSpot = 650;
+	const ballColors: Record<number, string> = {
+		1: '#f4d322',
+		2: '#2568c9',
+		3: '#d52e32',
+		4: '#7138a5',
+		5: '#ed8b26',
+		6: '#16894e',
+		7: '#7d2633',
+		8: '#171717',
+	};
+	const rackRows = [[1], [10, 2], [3, 8, 11], [12, 4, 13, 5], [6, 9, 7, 14, 15]];
+	const pockets = [
+		[50, 50],
+		[450, 50],
+		[850, 50],
+		[50, 450],
+		[450, 450],
+		[850, 450],
+	] as const;
+	const groupFor = (number: number): Group | null => {
+		if (number >= 1 && number <= 7) return 'solids';
+		if (number >= 9 && number <= 15) return 'stripes';
+		return null;
+	};
+
+	for (const game of document.querySelectorAll<HTMLElement>('[data-break-game]')) {
+		const canvas = game.querySelector<HTMLCanvasElement>('canvas');
+		const angleControl = game.querySelector<HTMLInputElement>('[data-angle]');
+		const powerControl = game.querySelector<HTMLInputElement>('[data-power]');
+		const angleOutput = game.querySelector<HTMLOutputElement>('[data-angle-output]');
+		const powerOutput = game.querySelector<HTMLOutputElement>('[data-power-output]');
+		const shootButton = game.querySelector<HTMLButtonElement>('[data-shoot]');
+		const resetButton = game.querySelector<HTMLButtonElement>('[data-reset]');
+		const status = game.querySelector<HTMLElement>('[data-status]');
+		const phaseLabel = game.querySelector<HTMLElement>('[data-phase]');
+		const scoreLabel = game.querySelector<HTMLElement>('[data-score]');
+		const groupButtons = game.querySelectorAll<HTMLButtonElement>('[data-group]');
+		const context = canvas?.getContext('2d');
+
+		if (!canvas || !angleControl || !powerControl || !angleOutput || !powerOutput || !shootButton || !resetButton || !status || !phaseLabel || !scoreLabel || groupButtons.length !== 2 || !context) {
+			throw new Error('The pool game could not initialize its controls or canvas.');
+		}
+		const ctx = context;
+		let balls: Ball[] = [];
+		let angle = 0;
+		let lastFrame = 0;
+		let shotRunning = false;
+		let hasBroken = false;
+		let ballInHand = true;
+		let selectedGroup: Group | null = null;
+		let assignedGroup: Group | null = null;
+		let shotPocketed: number[] = [];
+		let firstContact: number | null = null;
+		let railContacts = new Set<number>();
+		let draggingCue = false;
+		let didDragCue = false;
+		let ignoreNextClick = false;
+		let gameOver = false;
+
+		const cueBall = () => balls[0];
+		const setStatus = (message: string) => {
+			status.textContent = message;
+		};
+		const ballCount = (group: Group) =>
+			balls.filter((ball) => !ball.pocketed && groupFor(ball.number) === group).length;
+		const updateToolbar = () => {
+			phaseLabel.textContent = gameOver ? (ballCount('solids') + ballCount('stripes') === 0 ? 'TABLE CLEARED' : 'GAME OVER') : hasBroken ? 'YOUR TURN' : 'BREAK SHOT';
+			angleControl.min = hasBroken ? '-180' : '-45';
+			angleControl.max = hasBroken ? '180' : '45';
+			const clampedAngle = Math.max(Number(angleControl.min), Math.min(Number(angleControl.max), Number(angleControl.value)));
+			angleControl.value = String(clampedAngle);
+			angle = (clampedAngle * Math.PI) / 180;
+			angleOutput.value = `${clampedAngle}°`;
+			const group = assignedGroup ?? selectedGroup;
+			if (group) {
+				const remaining = ballCount(group);
+				scoreLabel.textContent = `${group === 'solids' ? 'Solids' : 'Stripes'} · ${remaining} left${remaining === 0 ? ' · on the 8' : ''}`;
+			} else {
+				scoreLabel.textContent = hasBroken ? 'Choose solids or stripes to continue' : 'Choose your group after the break';
+			}
+			for (const button of groupButtons) {
+				const groupName = button.dataset.group as Group;
+				button.setAttribute('aria-pressed', String(groupName === (assignedGroup ?? selectedGroup)));
+				button.disabled = gameOver || shotRunning || assignedGroup !== null;
+			}
+			shootButton.disabled = shotRunning || gameOver || (hasBroken && selectedGroup === null && assignedGroup === null);
+			shootButton.textContent = hasBroken ? 'Shoot' : 'Break!';
+		};
+		const toTablePoint = (event: PointerEvent | MouseEvent) => {
+			const bounds = canvas.getBoundingClientRect();
+			return {
+				x: ((event.clientX - bounds.left) / bounds.width) * width,
+				y: ((event.clientY - bounds.top) / bounds.height) * height,
+			};
+		};
+		const setCuePosition = (x: number, y: number) => {
+			const cue = cueBall();
+			const maxX = hasBroken && ballInHand ? table.right - radius : headString - radius - 1;
+			cue.x = Math.max(table.left + radius + 3, Math.min(maxX, x));
+			cue.y = Math.max(table.top + radius + 3, Math.min(table.bottom - radius - 3, y));
+			cue.pocketed = false;
+			cue.vx = 0;
+			cue.vy = 0;
+			draw();
+		};
+		const createRack = () => {
+			balls = [{ x: 175, y: 250, vx: 0, vy: 0, number: 0, rotation: 0, pocketed: false }];
+			for (let row = 0; row < rackRows.length; row += 1) {
+				const rowNumbers = rackRows[row];
+				for (let column = 0; column < rowNumbers.length; column += 1) {
+					balls.push({
+						x: footSpot + row * radius * Math.sqrt(3),
+						y: 250 + (column - (rowNumbers.length - 1) / 2) * radius * 2.01,
+						vx: 0,
+						vy: 0,
+						number: rowNumbers[column],
+						rotation: (row * 0.7 + column * 0.35) % (Math.PI * 2),
+						pocketed: false,
+					});
+				}
+			}
+			angle = 0;
+			angleControl.value = '0';
+			angleOutput.value = '0°';
+			hasBroken = false;
+			ballInHand = true;
+			selectedGroup = null;
+			assignedGroup = null;
+			shotRunning = false;
+			shotPocketed = [];
+			firstContact = null;
+			railContacts = new Set<number>();
+			gameOver = false;
+			setStatus('Drag the cue ball anywhere behind the head string. Aim with the slider or by clicking the table.');
+			updateToolbar();
+			draw();
+		};
+
+		const drawBall = (ball: Ball) => {
+			if (ball.pocketed) return;
+			ctx.save();
+			ctx.shadowColor = 'rgba(0, 0, 0, 0.38)';
+			ctx.shadowBlur = 4;
+			ctx.shadowOffsetX = 2;
+			ctx.shadowOffsetY = 3;
+			ctx.beginPath();
+			ctx.arc(ball.x, ball.y, radius, 0, Math.PI * 2);
+			const color = ball.number === 0 ? '#f6f5ee' : ballColors[((ball.number - 1) % 8) + 1];
+			const gradient = ctx.createRadialGradient(ball.x - 4.5, ball.y - 5, 1, ball.x, ball.y, radius);
+			gradient.addColorStop(0, '#ffffff');
+			gradient.addColorStop(0.18, ball.number === 0 ? '#f4f2e7' : color);
+			gradient.addColorStop(0.78, color);
+			gradient.addColorStop(1, '#101711');
+			ctx.fillStyle = gradient;
+			ctx.fill();
+			ctx.shadowColor = 'transparent';
+			ctx.shadowBlur = 0;
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 0;
+			ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+			ctx.lineWidth = 0.8;
+			ctx.stroke();
+
+			if (ball.number > 8) {
+				ctx.save();
+				ctx.beginPath();
+				ctx.arc(ball.x, ball.y, radius - 0.8, 0, Math.PI * 2);
+				ctx.clip();
+				ctx.translate(ball.x, ball.y);
+				ctx.rotate(ball.rotation);
+				ctx.fillStyle = '#f7f5eb';
+				ctx.fillRect(-radius, -3.2, radius * 2, 6.4);
+				ctx.restore();
+			}
+
+			if (ball.number > 0) {
+				const badgeX = ball.x + Math.cos(ball.rotation) * 2.5;
+				const badgeY = ball.y + Math.sin(ball.rotation) * 2.5;
+				ctx.beginPath();
+				ctx.arc(badgeX, badgeY, 5.2, 0, Math.PI * 2);
+				ctx.fillStyle = '#fffdf5';
+				ctx.fill();
+				ctx.fillStyle = '#191919';
+				ctx.font = 'bold 7px system-ui, sans-serif';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(String(ball.number), badgeX, badgeY + 0.3);
+			} else {
+				ctx.beginPath();
+				ctx.arc(ball.x + Math.cos(ball.rotation) * 4, ball.y + Math.sin(ball.rotation) * 4, 1.4, 0, Math.PI * 2);
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+				ctx.fill();
+			}
+			ctx.restore();
+		};
+
+		function draw() {
+			ctx.clearRect(0, 0, width, height);
+			ctx.fillStyle = '#173d2b';
+			ctx.fillRect(0, 0, width, height);
+			ctx.fillStyle = '#176443';
+			ctx.fillRect(38, 38, 824, 424);
+			ctx.strokeStyle = 'rgba(210, 235, 213, 0.18)';
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(headString, table.top);
+			ctx.lineTo(headString, table.bottom);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(headString, 250, 3, 0, Math.PI * 2);
+			ctx.fillStyle = 'rgba(230, 242, 231, 0.52)';
+			ctx.fill();
+			ctx.beginPath();
+			ctx.arc(footSpot, 250, 2.5, 0, Math.PI * 2);
+			ctx.fill();
+
+			for (const [x, y] of pockets) {
+				ctx.beginPath();
+				ctx.arc(x, y, 22, 0, Math.PI * 2);
+				ctx.fillStyle = '#101612';
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(x, y, 15, 0, Math.PI * 2);
+				ctx.fillStyle = '#080b09';
+				ctx.fill();
+			}
+
+			if (!shotRunning && !gameOver) {
+				const cue = cueBall();
+				const dx = Math.cos(angle);
+				const dy = Math.sin(angle);
+				ctx.save();
+				ctx.setLineDash([6, 6]);
+				ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+				ctx.lineWidth = 1.5;
+				ctx.beginPath();
+				ctx.moveTo(cue.x + dx * 14, cue.y + dy * 14);
+				ctx.lineTo(cue.x + dx * 260, cue.y + dy * 260);
+				ctx.stroke();
+				ctx.restore();
+				ctx.strokeStyle = '#c99d68';
+				ctx.lineWidth = 4;
+				ctx.beginPath();
+				ctx.moveTo(cue.x - dx * 78, cue.y - dy * 78);
+				ctx.lineTo(cue.x - dx * 15, cue.y - dy * 15);
+				ctx.stroke();
+			}
+
+			for (const ball of balls) drawBall(ball);
+			if (!hasBroken) {
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+				ctx.font = '11px system-ui, sans-serif';
+				ctx.fillText('HEAD STRING', headString - 31, 65);
+				ctx.fillText('KITCHEN', table.left + 20, 65);
+			}
+		}
+
+		const resetForFoul = (kitchenOnly: boolean) => {
+			const cue = cueBall();
+			cue.x = kitchenOnly ? 175 : 450;
+			cue.y = 250;
+			cue.vx = 0;
+			cue.vy = 0;
+			cue.pocketed = false;
+			ballInHand = true;
+		};
+		const finishShot = () => {
+			shotRunning = false;
+			const cue = cueBall();
+			const scratched = cue.pocketed;
+			const eightPocketed = shotPocketed.includes(8);
+			const groupPocketed = shotPocketed.filter((number) => groupFor(number) !== null);
+			const targetGroup = assignedGroup ?? selectedGroup ?? groupFor(groupPocketed[0] ?? 0);
+			const foul = scratched || (hasBroken && targetGroup !== null && firstContact !== null &&
+				(firstContact === 8 ? ballCount(targetGroup) > 0 : groupFor(firstContact) !== targetGroup));
+
+			if (eightPocketed) {
+				const cleared = targetGroup !== null && ballCount(targetGroup) === 0 && !foul;
+				gameOver = true;
+				ballInHand = false;
+				setStatus(cleared ? 'You cleared your group and potted the 8-ball. You win!' : 'The 8-ball went down too early or on a foul. Game over — start a new rack.');
+			} else if (!hasBroken) {
+				hasBroken = true;
+				if (foul) {
+					resetForFoul(true);
+					setStatus('Break foul: cue-ball scratch. Place the cue ball in the kitchen for your next shot.');
+				} else if (shotPocketed.some((number) => number > 0)) {
+					setStatus('Break complete. Choose solids or stripes for your run, then shoot again.');
+				} else if (railContacts.size < 4 && shotPocketed.every((number) => number === 0)) {
+					setStatus(`Illegal break: only ${railContacts.size} object balls reached a rail. Choose a group and continue, or start a new rack.`);
+				} else {
+					setStatus('Break complete. Choose solids or stripes, then pot a ball from that group.');
+				}
+			} else if (foul) {
+				resetForFoul(false);
+				setStatus(scratched ? 'Scratch. Place the cue ball anywhere on the table and shoot again.' : 'Wrong first contact. Cue ball in hand — place it and try again.');
+			} else {
+				if (assignedGroup === null && groupPocketed.length > 0) {
+					assignedGroup = selectedGroup ?? groupFor(groupPocketed[0]);
+				}
+				const madeTarget = assignedGroup !== null && groupPocketed.some((number) => groupFor(number) === assignedGroup);
+				ballInHand = false;
+				setStatus(madeTarget
+					? `Nice pot. ${ballCount(assignedGroup as Group)} ${assignedGroup} left${ballCount(assignedGroup as Group) === 0 ? ' — now clear the 8-ball.' : ''} Shoot again.`
+					: 'No foul. Your group stays the same; line up another shot.');
+			}
+
+			shotPocketed = [];
+			firstContact = null;
+			railContacts = new Set<number>();
+			updateToolbar();
+			draw();
+		};
+
+		const animate = (time: number) => {
+			if (!shotRunning) return;
+			const dt = Math.min((time - lastFrame) / 1000, 0.02);
+			lastFrame = time;
+			const friction = 170;
+
+			for (const ball of balls) {
+				if (ball.pocketed) continue;
+				const speed = Math.hypot(ball.vx, ball.vy);
+				if (speed > 0) {
+					const deceleration = Math.min(speed, friction * dt);
+					ball.vx -= (ball.vx / speed) * deceleration;
+					ball.vy -= (ball.vy / speed) * deceleration;
+					ball.x += ball.vx * dt;
+					ball.y += ball.vy * dt;
+					ball.rotation += (speed * dt) / radius;
+					if (Math.hypot(ball.vx, ball.vy) < 9) {
+						ball.vx = 0;
+						ball.vy = 0;
+					}
+				}
+
+				if (pockets.some(([x, y]) => Math.hypot(ball.x - x, ball.y - y) < 21)) {
+					ball.pocketed = true;
+					ball.vx = 0;
+					ball.vy = 0;
+					if (ball.number === 0) {
+						shotPocketed.push(0);
+					} else {
+						shotPocketed.push(ball.number);
+					}
+					continue;
+				}
+
+				if (ball.x < table.left + radius || ball.x > table.right - radius) {
+					ball.x = Math.max(table.left + radius, Math.min(table.right - radius, ball.x));
+					ball.vx *= -0.88;
+					if (ball.number > 0) railContacts.add(ball.number);
+				}
+				if (ball.y < table.top + radius || ball.y > table.bottom - radius) {
+					ball.y = Math.max(table.top + radius, Math.min(table.bottom - radius, ball.y));
+					ball.vy *= -0.88;
+					if (ball.number > 0) railContacts.add(ball.number);
+				}
+			}
+
+			for (let i = 0; i < balls.length; i += 1) {
+				const first = balls[i];
+				if (first.pocketed) continue;
+				for (let j = i + 1; j < balls.length; j += 1) {
+					const second = balls[j];
+					if (second.pocketed) continue;
+					const dx = second.x - first.x;
+					const dy = second.y - first.y;
+					const distance = Math.hypot(dx, dy);
+					const minDistance = radius * 2;
+					if (distance >= minDistance) continue;
+					const nx = distance === 0 ? 1 : dx / distance;
+					const ny = distance === 0 ? 0 : dy / distance;
+					const overlap = minDistance - distance;
+					first.x -= nx * overlap * 0.5;
+					first.y -= ny * overlap * 0.5;
+					second.x += nx * overlap * 0.5;
+					second.y += ny * overlap * 0.5;
+					if (first.number === 0 && second.number > 0 && firstContact === null) firstContact = second.number;
+					if (second.number === 0 && first.number > 0 && firstContact === null) firstContact = first.number;
+					const relativeVelocity = (second.vx - first.vx) * nx + (second.vy - first.vy) * ny;
+					if (relativeVelocity >= 0) continue;
+					const impulse = -relativeVelocity * 0.96;
+					first.vx -= impulse * nx;
+					first.vy -= impulse * ny;
+					second.vx += impulse * nx;
+					second.vy += impulse * ny;
+				}
+			}
+
+			draw();
+			if (balls.every((ball) => ball.pocketed || Math.hypot(ball.vx, ball.vy) === 0)) {
+				finishShot();
+				return;
+			}
+			requestAnimationFrame(animate);
+		};
+
+		angleControl.addEventListener('input', () => {
+			angle = (Number(angleControl.value) * Math.PI) / 180;
+			angleOutput.value = `${angleControl.value}°`;
+			draw();
+		});
+		powerControl.addEventListener('input', () => {
+			powerOutput.value = `${powerControl.value}%`;
+		});
+		for (const button of groupButtons) {
+			button.addEventListener('click', () => {
+				if (assignedGroup !== null || gameOver) return;
+				selectedGroup = button.dataset.group as Group;
+				updateToolbar();
+				setStatus(`You chose ${selectedGroup}. ${hasBroken ? 'Pick a ball from that group and shoot.' : 'Break the rack to start.'}`);
+			});
+		}
+
+		canvas.addEventListener('pointerdown', (event) => {
+			if (shotRunning || gameOver) return;
+			const point = toTablePoint(event);
+			const cue = cueBall();
+			const hitCue = Math.hypot(point.x - cue.x, point.y - cue.y) <= radius * 2;
+			if (hitCue || ballInHand) {
+				draggingCue = true;
+				didDragCue = true;
+				canvas.setPointerCapture(event.pointerId);
+				setCuePosition(point.x, point.y);
+			}
+		});
+		canvas.addEventListener('pointermove', (event) => {
+			if (!draggingCue) return;
+			const point = toTablePoint(event);
+			setCuePosition(point.x, point.y);
+		});
+		const stopCueDrag = () => {
+			if (!draggingCue) return;
+			draggingCue = false;
+			ballInHand = false;
+			ignoreNextClick = true;
+			window.setTimeout(() => {
+				ignoreNextClick = false;
+				didDragCue = false;
+			}, 0);
+			setStatus(hasBroken ? 'Cue ball placed. Aim your shot and set the power.' : 'Cue ball placed in the kitchen. Aim your break.');
+		};
+		canvas.addEventListener('pointerup', stopCueDrag);
+		canvas.addEventListener('pointercancel', stopCueDrag);
+		canvas.addEventListener('click', (event) => {
+			if (ignoreNextClick || didDragCue || shotRunning || gameOver) return;
+			const point = toTablePoint(event);
+			const degrees = (Math.atan2(point.y - cueBall().y, point.x - cueBall().x) * 180) / Math.PI;
+			const maxAim = hasBroken ? 180 : 45;
+			const minAim = hasBroken ? -180 : -45;
+			angleControl.value = String(Math.max(minAim, Math.min(maxAim, degrees)));
+			angleControl.dispatchEvent(new Event('input', { bubbles: true }));
+			setStatus(`Aim set to ${angleControl.value}°. Set your power and shoot.`);
+		});
+		shootButton.addEventListener('click', () => {
+			if (shotRunning || gameOver || (hasBroken && selectedGroup === null && assignedGroup === null)) return;
+			shotRunning = true;
+			ballInHand = false;
+			shotPocketed = [];
+			firstContact = null;
+			railContacts = new Set<number>();
+			const speed = 80 + Number(powerControl.value) * 8.5;
+			const breakBoost = hasBroken ? 1 : 1.35;
+			cueBall().vx = Math.cos(angle) * speed * breakBoost;
+			cueBall().vy = Math.sin(angle) * speed * breakBoost;
+			setStatus(hasBroken ? 'Shot taken. Watch the cue ball and object balls roll.' : 'Breaking... watch the rack spread.');
+			updateToolbar();
+			lastFrame = performance.now();
+			requestAnimationFrame(animate);
+		});
+		resetButton.addEventListener('click', createRack);
+		createRack();
+	}
+</script>

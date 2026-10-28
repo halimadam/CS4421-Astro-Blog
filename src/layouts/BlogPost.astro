@@ -5,6 +5,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import PoolBreakGame from '../components/PoolBreakGame.astro';
 
 type Author = CollectionEntry<'authors'>['data'];
 
@@ -93,10 +94,75 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 			.last-updated-on {
 				font-style: italic;
 			}
+			:global(body.pool-break-post) {
+				background:
+					radial-gradient(ellipse at 50% 7%, rgba(255, 32, 96, 0.3), transparent 42%),
+					radial-gradient(ellipse at 8% 52%, rgba(191, 18, 63, 0.22), transparent 42%),
+					linear-gradient(180deg, #260711 0%, #12070d 65%, #200812 100%);
+				background-attachment: fixed;
+				color: #ffeaf1;
+			}
+			:global(body.pool-break-post) .prose {
+				border: 1px solid rgba(255, 71, 123, 0.38);
+				border-radius: 20px;
+				background: linear-gradient(145deg, rgba(42, 12, 24, 0.96), rgba(24, 9, 17, 0.97));
+				box-shadow: 0 0 28px rgba(255, 28, 91, 0.16), 0 18px 60px rgba(0, 0, 0, 0.28);
+				color: #ffeaf1;
+			}
+			:global(body.pool-break-post .prose h1),
+			:global(body.pool-break-post .prose h2),
+			:global(body.pool-break-post .prose h3) {
+				color: #fff3f7;
+				text-shadow: 0 0 16px rgba(255, 44, 105, 0.2);
+			}
+			:global(body.pool-break-post .prose a) {
+				color: #ff6d9a;
+			}
+			:global(body.pool-break-post .prose a:hover) {
+				color: #ffabc3;
+			}
+			:global(body.pool-break-post .prose hr),
+			:global(body.pool-break-post .author-profile) {
+				border-color: rgba(255, 115, 151, 0.3);
+			}
+			:global(body.pool-break-post .date),
+			:global(body.pool-break-post .game-help) {
+				color: #d7a8b7;
+			}
+			:global(body.pool-break-post header) {
+				border-bottom: 1px solid rgba(255, 71, 123, 0.48);
+				background: linear-gradient(100deg, #260711, #3a0c1d 52%, #210710);
+				box-shadow: 0 4px 22px rgba(255, 28, 91, 0.2);
+			}
+			:global(body.pool-break-post header nav a) {
+				color: #ffeaf1 !important;
+				transition: color 160ms ease, text-shadow 160ms ease;
+			}
+			:global(body.pool-break-post header nav a:hover),
+			:global(body.pool-break-post header nav a.active) {
+				color: #ff8eaf !important;
+				text-shadow: 0 0 12px rgba(255, 71, 123, 0.55);
+			}
+			:global(body.pool-break-post header nav h2 a) {
+				color: #fff3f7 !important;
+				text-shadow: 0 0 14px rgba(255, 71, 123, 0.3);
+			}
+			:global(body.pool-break-post header nav h2 a:hover) {
+				color: #ff8eaf !important;
+			}
+			:global(body.pool-break-post header nav a.active) {
+				border-bottom-color: #ff477b;
+			}
+			:global(body.pool-break-post footer) {
+				border-top: 1px solid rgba(255, 71, 123, 0.35);
+				background: linear-gradient(180deg, #200812, #12070d);
+				color: #d7a8b7;
+				box-shadow: 0 -8px 26px rgba(255, 28, 91, 0.1);
+			}
 		</style>
 	</head>
 
-	<body>
+	<body class:list={{ 'pool-break-post': title === 'How to Break an 8-Ball' }}>
 		<Header />
 		<main>
 			<article>
@@ -119,6 +185,7 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 						<hr />
 					</div>
 					<slot />
+					{title === 'How to Break an 8-Ball' && <PoolBreakGame />}
 					{author && (
 						<section class="author-profile" aria-labelledby="author-heading">
 							<Image class="author-avatar" src={author.avatar} alt={author.avatarAlt} width={96} height={96} />
