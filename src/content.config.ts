@@ -15,6 +15,7 @@ const blog = defineCollection({
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
 			author: z.string(),
+			theme: z.enum(['magenta', 'cyan', 'amber', 'emerald']).optional(),
 		}),
 });
 

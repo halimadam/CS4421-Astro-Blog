@@ -11,7 +11,7 @@ type Author = CollectionEntry<'authors'>['data'];
 
 type Props = Omit<CollectionEntry<'blog'>['data'], 'author'> & { author?: Author };
 
-const { title, description, pubDate, updatedDate, heroImage, author } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, author, theme } = Astro.props;
 ---
 
 <html lang="en">
@@ -159,10 +159,102 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 				color: #d7a8b7;
 				box-shadow: 0 -8px 26px rgba(255, 28, 91, 0.1);
 			}
+			:global(body[data-theme='magenta']) {
+				--post-accent: #ff8fc4;
+				--post-link: #ff9fc9;
+				--post-gradient:
+					radial-gradient(ellipse at 50% 7%, rgba(196, 24, 132, 0.28), transparent 42%),
+					radial-gradient(ellipse at 8% 52%, rgba(110, 30, 147, 0.25), transparent 42%),
+					linear-gradient(180deg, #1d0b24 0%, #100918 65%, #200b23 100%);
+			}
+			:global(body[data-theme='cyan']) {
+				--post-accent: #7de8f2;
+				--post-link: #92edf4;
+				--post-gradient:
+					radial-gradient(ellipse at 50% 7%, rgba(0, 177, 200, 0.25), transparent 42%),
+					radial-gradient(ellipse at 8% 52%, rgba(20, 91, 151, 0.24), transparent 42%),
+					linear-gradient(180deg, #071b26 0%, #080f1c 65%, #081d26 100%);
+			}
+			:global(body[data-theme='amber']) {
+				--post-accent: #ffd17a;
+				--post-link: #ffdc96;
+				--post-gradient:
+					radial-gradient(ellipse at 50% 7%, rgba(192, 120, 22, 0.27), transparent 42%),
+					radial-gradient(ellipse at 8% 52%, rgba(142, 58, 24, 0.23), transparent 42%),
+					linear-gradient(180deg, #271609 0%, #130d09 65%, #26120b 100%);
+			}
+			:global(body[data-theme='emerald']) {
+				--post-accent: #8aefb3;
+				--post-link: #98efba;
+				--post-gradient:
+					radial-gradient(ellipse at 50% 7%, rgba(21, 151, 108, 0.27), transparent 42%),
+					radial-gradient(ellipse at 8% 52%, rgba(20, 91, 104, 0.24), transparent 42%),
+					linear-gradient(180deg, #08251d 0%, #09130f 65%, #09241a 100%);
+			}
+			:global(body[data-theme]) {
+				background: var(--post-gradient);
+				background-attachment: fixed;
+				color: #f5f0e2;
+			}
+			:global(body[data-theme]) .prose {
+				border: 1px solid color-mix(in srgb, var(--post-accent) 38%, transparent);
+				border-radius: 20px;
+				background: linear-gradient(145deg, rgba(31, 17, 39, 0.96), rgba(16, 11, 26, 0.97));
+				box-shadow:
+					0 0 28px color-mix(in srgb, var(--post-accent) 16%, transparent),
+					0 18px 60px rgba(0, 0, 0, 0.28);
+				color: #f5f0e2;
+			}
+			:global(body[data-theme] .prose h1),
+			:global(body[data-theme] .prose h2),
+			:global(body[data-theme] .prose h3) {
+				color: #fffaf0;
+				text-shadow: 0 0 16px color-mix(in srgb, var(--post-accent) 20%, transparent);
+			}
+			:global(body[data-theme] .prose a) {
+				color: var(--post-link);
+			}
+			:global(body[data-theme] .prose a:hover) {
+				color: var(--post-accent);
+			}
+			:global(body[data-theme] .prose hr),
+			:global(body[data-theme] .author-profile) {
+				border-color: color-mix(in srgb, var(--post-accent) 30%, transparent);
+			}
+			:global(body[data-theme] .date) {
+				color: #d4cad9;
+			}
+			:global(body[data-theme] header) {
+				border-bottom: 1px solid color-mix(in srgb, var(--post-accent) 48%, transparent);
+				background: linear-gradient(100deg, #120b22, #25102f 52%, #160b21);
+				box-shadow: 0 4px 22px color-mix(in srgb, var(--post-accent) 20%, transparent);
+			}
+			:global(body[data-theme] header nav a) {
+				color: #f5f0e2 !important;
+				transition: color 160ms ease, text-shadow 160ms ease;
+			}
+			:global(body[data-theme] header nav a:hover),
+			:global(body[data-theme] header nav a.active) {
+				color: var(--post-accent) !important;
+				text-shadow: 0 0 12px color-mix(in srgb, var(--post-accent) 55%, transparent);
+			}
+			:global(body[data-theme] header nav h2 a) {
+				color: #fffaf0 !important;
+				text-shadow: 0 0 14px color-mix(in srgb, var(--post-accent) 30%, transparent);
+			}
+			:global(body[data-theme] header nav a.active) {
+				border-bottom-color: var(--post-accent);
+			}
+			:global(body[data-theme] footer) {
+				border-top: 1px solid color-mix(in srgb, var(--post-accent) 35%, transparent);
+				background: linear-gradient(180deg, #160b21, #100918);
+				color: #d4cad9;
+				box-shadow: 0 -8px 26px color-mix(in srgb, var(--post-accent) 10%, transparent);
+			}
 		</style>
 	</head>
 
-	<body class:list={{ 'pool-break-post': title === 'How to Break an 8-Ball' }}>
+	<body data-theme={theme} class:list={{ 'pool-break-post': title === 'How to Break an 8-Ball' }}>
 		<Header />
 		<main>
 			<article>
