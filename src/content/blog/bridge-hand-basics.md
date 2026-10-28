@@ -3,7 +3,7 @@ title: 'Bridge Hand and Stance Basics'
 description: 'Build a steady pool stance and a reliable bridge so your cue can travel straight through the shot.'
 pubDate: '2026-10-19'
 author: 'halim-adam'
-heroImage: '../../assets/blog-placeholder-3.jpg' # TODO: replace hero image
+heroImage: '../../assets/bridge-hand-basics.png'
 theme: magenta
 ---
 

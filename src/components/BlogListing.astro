@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
+import { sortBlogPosts } from '../utils/blog';
 
 interface Props {
     animated?: boolean;
@@ -9,9 +10,9 @@ interface Props {
 }
 
 const { animated = false, excludeIds = [] } = Astro.props;
-const posts = (await getCollection('blog'))
-    .filter((post) => !excludeIds.includes(post.id))
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = sortBlogPosts(
+    (await getCollection('blog')).filter((post) => !excludeIds.includes(post.id)),
+);
 ---
 
 <section

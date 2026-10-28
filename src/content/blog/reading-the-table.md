@@ -3,7 +3,7 @@ title: 'Reading the Table and Planning Cue-Ball Position'
 description: 'Look beyond the current shot to choose a cue-ball route that leaves a clear next option.'
 pubDate: '2026-10-20'
 author: 'halim-adam'
-heroImage: '../../assets/blog-placeholder-4.jpg' # TODO: replace hero image
+heroImage: '../../assets/reading-the-table.png'
 theme: cyan
 ---
 

@@ -3,7 +3,7 @@ title: 'When to Play Safe Instead of Going for the Shot'
 description: 'Use a safety when a low-percentage attack would leave your opponent an easier chance than a thoughtful defensive shot.'
 pubDate: '2026-10-21'
 author: 'halim-adam'
-heroImage: '../../assets/blog-placeholder-2.jpg' # TODO: replace hero image
+heroImage: '../../assets/when-to-play-safe.png'
 theme: amber
 ---
 
