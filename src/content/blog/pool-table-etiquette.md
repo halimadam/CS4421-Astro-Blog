@@ -1,7 +1,7 @@
 ---
 title: 'Pool Table Etiquette: Small Habits That Keep the Game Friendly'
 description: 'A few considerate habits help everyone share a pool table comfortably and keep the game moving.'
-pubDate: 'Oct 22 2026'
+pubDate: '2026-10-22'
 author: 'halim-adam'
 heroImage: '../../assets/blog-placeholder-1.jpg' # TODO: replace hero image
 theme: emerald

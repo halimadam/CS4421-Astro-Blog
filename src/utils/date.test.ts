@@ -13,4 +13,8 @@ describe('date utilities', () => {
   it('uses the UTC calendar date regardless of the local timezone', () => {
     expect(formatDate(new Date('2022-07-08T00:30:00Z'))).toBe('8 Jul 2022');
   });
+
+  it('formats ISO date-only values without shifting the calendar date', () => {
+    expect(formatDate(new Date('2026-10-22'))).toBe('22 Oct 2026');
+  });
 });
