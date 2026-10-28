@@ -191,7 +191,7 @@ const { title, description, pubDate, updatedDate, heroImage, author } = Astro.pr
 							<Image class="author-avatar" src={author.avatar} alt={author.avatarAlt} width={96} height={96} />
 							<div>
 								<h2 id="author-heading">About {author.name}</h2>
-								<p class="author-bio">{author.bio}</p>
+								<p class="author-bio" style="white-space: pre-line;">{author.bio}</p>
 								<nav class="author-links" aria-label={`${author.name}'s social links`}>
 									{author.socialLinks.map((link) => <a href={link.url} rel="me">{link.label}</a>)}
 								</nav>

@@ -1,0 +1,50 @@
+name: Build and Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Dependencies & Run Tests
+        run: |
+          npm ci
+          npm run test:unit
+
+      - name: Build Astro Site (Static & SSR)
+        run: npm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag & Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/astro-blog:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/astro-blog:$IMAGE_TAG
+
+      - name: Deploy All CDK Stacks
+        run: |
+          cd cdk
+          npm ci
+          npx cdk deploy --all --require-approval never --parameters EcsStack:ImageTag=${{ github.sha }}
